@@ -1,7 +1,8 @@
 from Simulation.SR.sender import Sender
 from Simulation.SR.receiver import Receiver
 from Simulation.SR.channel import Channel
-import simpy.rt
+import simpy.rt, simpy
+
 from flask_sse import sse
 
 
@@ -25,7 +26,6 @@ class Start():
     def run(self, runTime, errorRate, lossRate, windowSize):
         sse.publish({"protocol": "Selective-Repeat"}, type='start')
         env = simpy.rt.RealtimeEnvironment()
-        # all varibales passed from GUI to back end will go through here, only to be picked by users through dropdowns and sliders and will be set throguh setters
         sim = SimulationManager(env, errorRate, lossRate, windowSize)
         env.run(until=runTime)
         statement = "END"
@@ -34,6 +34,6 @@ class Start():
 
 
 if __name__ == '__main__':
-    env = simpy.Environment()
-    sim = SimulationManager(env)
+    env = simpy.rt.RealtimeEnvironment()
+    sim = SimulationManager(env, 10, 10, 5)
     env.run(until=50)

@@ -1,10 +1,8 @@
 class Packet():
-    seqnum = 1
-    def __init__(self, data):
-        self.seqnum = Packet.seqnum
+    def __init__(self, seqnum, data):
+        self.seqnum = seqnum
         self.data = data
         self.state = True   
-        Packet.seqnum += 1 
 
 
 class ACK(Packet):

@@ -1,9 +1,8 @@
-from Simulation.SR.receiverStates import Waiting
-from Simulation.SR.packet import ACK
 from flask_sse import sse
+from Simulation.SR.packet import ACK
+from Simulation.SR.receiverStates import Waiting
 
-
-DELIVER_TIME = 2    # time to deliver packet to upper layers
+DELIVER_TIME = 0    # time to deliver packet to upper layers
 SEND_TIME = 2   # time to send packet back to sender - ACK or NAK
 
 
@@ -29,7 +28,13 @@ class Receiver():
 
     def handle(self, packet, source):
         seqnum = packet.seqnum
-        if packet.state is True and seqnum <= self.base + self.windowSize:
+        # if this packet has already been received, discard and send ACK, regardless of current state as data has already been received
+        if seqnum in range(self.base - self.windowSize, self.base):
+            statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " was already receiver, discarding duplicate"
+            print(statement)
+            sse.publish({"message": statement}, type='publish')
+            yield self.env.process(self.send_ACK(seqnum, source))
+        elif packet.state is True and seqnum in range(self.base, self.base + self.windowSize):
             if seqnum == self.base:
                 statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " received"
                 print(statement)
@@ -37,7 +42,7 @@ class Receiver():
                 # deliver data and send ACK
                 self.env.process(self.deliver_data(packet))
             else:
-                statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " received out of order, stored in buffer to delivered later"
+                statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " received out of order, stored in buffer to be delivered later"
                 print(statement)
                 sse.publish({"message": statement}, type='publish')
                 self.env.process(self.buffer_data(packet))
@@ -49,15 +54,21 @@ class Receiver():
             yield self.env.timeout(0)
             
 
-    def deliver_data(self, seqnum):
+    def deliver_data(self, packet):
         # time to receive packet
+        seqnum = packet.seqnum
+        # data buffered in one go, they don't have individual buffer times
+        yield self.env.timeout(DELIVER_TIME)
+        # if packet is in order deliver the data, and deliver any packets in buffer while they are in order
         while seqnum == self.base:
-            yield self.env.timeout(DELIVER_TIME)
             statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " data delivered"
             print(statement)
             sse.publish({"message": statement}, type='publish')
+            # check if there are any packets in buffer
+            if len(self.buffer) != 0:
+                seqnum = self.buffer.pop(0)
             self.base += 1
-            seqnum = self.buffer[0].seqnum
+        
 
 
     def send_ACK(self, packet_num, source):
@@ -71,5 +82,7 @@ class Receiver():
 
 
     def buffer_data(self, packet):
-        pass
+        self.buffer.append(packet.seqnum)
+        self.buffer.sort()
+        yield self.env.timeout(0)
 

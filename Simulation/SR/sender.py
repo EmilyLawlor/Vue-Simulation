@@ -1,6 +1,6 @@
 import random
 
-import simpy
+import simpy.rt
 from Simulation.SR.packet import Packet, ResendPacket
 from Simulation.SR.senderStates import Sending, Waiting
 from Simulation.Utils.timer import Timer
@@ -18,7 +18,6 @@ class Sender():
         self.currentState = self.states['waiting']
         self.channel = channel
         self.windowSize = windowSize
-        self.window = simpy.Resource(self.env, capacity=windowSize)
         self.timer = {}
         self.nextSeqNum = 1
         self.base = 1
@@ -35,7 +34,7 @@ class Sender():
     def generate_packets(self, destination):
         # continuously create packets, generated after random interval
         while True:
-            packet=Packet('data')
+            packet=Packet(self.nextSeqNum, 'data')
 
             self.env.process(self.rdt_send(destination, packet))
 
@@ -68,6 +67,7 @@ class Sender():
                 self.timer[packet.seqnum].start()
 
             self.unACKed.append(packet.seqnum)
+            self.nextSeqNum += 1
 
             self.env.process(self.udt_send(destination, packet))
             yield self.env.timeout(0)
@@ -99,10 +99,19 @@ class Sender():
             sse.publish({"message": statement}, type='publish')
             if packet.seqnum in self.timer:
                 self.timer[packet.seqnum].stop()
-            # if this packet is the smalles unACKed packet, move window base to the next smallest unACKed packet
+            # if this packet is the smallest unACKed packet, move window base to the next smallest unACKed packet
             if self.unACKed[0] == packet.seqnum:
-                self.base = self.unACKed[1]
-            # remove from unACKed list
+                # use .pop() to remove from unACKed list as they are ACKed
+                self.unACKed.pop(0)
+                if len(self.unACKed) > 0:
+                    self.base = self.unACKed[0]
+                # if another there are no other unACKed packets in the channel, increase the base by 1
+                else:
+                    self.base = self.nextSeqNum
+            # if it was not smallest unACKed packet, find in unACKed list and remove
+            elif packet.seqnum in self.unACKed:
+                self.unACKed.remove(packet.seqnum)
+
 
 
     def rdt_resend(self, destination, seqnum):
@@ -111,6 +120,6 @@ class Sender():
         print(statement)
         sse.publish({"message": statement}, type='publish')
         if seqnum in self.timer:
-            self.timer[seqnum].restart()
+            self.timer[seqnum].start()
         self.env.process(self.udt_send(destination, packet))
         yield self.env.timeout(0)
