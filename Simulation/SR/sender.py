@@ -8,7 +8,7 @@ from flask_sse import sse
 
 
 SEND_TIME = 2
-TIMEOUT_INTERVAL = 7
+TIMEOUT_INTERVAL = 5
 
 
 class Sender():
