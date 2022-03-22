@@ -1,6 +1,6 @@
+from flask_sse import sse
 from Simulation.rdt2_2.packet import Packet, ResendPacket
-from Simulation.rdt2_2.senderStates import Waiting, Sending
-
+from Simulation.rdt2_2.senderStates import Sending, Waiting
 
 SEND_TIME = 2
 
@@ -11,13 +11,13 @@ class Sender():
         self.states = {'waiting-0':Waiting(0), 'waiting-1':Waiting(1), 'sending-0':Sending(0), 'sending-1':Sending(1)}
         self.currentState = self.states['waiting-0']
         self.channel = channel
-        """         # last ACK received by sender, to check for duplicates, if everything works correctly the sequence number of the first ACK should be 0, in first call of handle if packet.seqnum is equal to 1 there is a problem
-                self.lastACKseqnum = 1   ----- replaced by current state sequence number"""
 
 
     def setState(self, state):
         self.currentState = self.states[state]
-        print("{" + str(self.env.now) + "} | " + "Sender now: " + str(self.currentState))
+        statement = "{" + str(self.env.now) + "} | " + "Sender now: " + str(self.currentState)
+        print(statement)
+        sse.publish({"message": statement}, type='publish')
 
 
     def rdt_send(self, destination):
@@ -27,11 +27,15 @@ class Sender():
             else:
                 self.setState('sending-1')
             packet=Packet(self.currentState.seqnum, 'data')
-            print("{" + str(self.env.now) + "} | " + "Sending packet num " + str(packet.seqnum))
+            statement = "{" + str(self.env.now) + "} | " + "Sending packet num " + str(packet.seqnum)
+            print(statement)
+            sse.publish({"message": statement}, type='publish')
             yield self.env.timeout(SEND_TIME)
             self.env.process(self.channel.send(destination, packet, self))
         else:
-            print("{" + str(self.env.now) + "} | " + "Sender busy please wait")
+            statement = "{" + str(self.env.now) + "} | " + "Sender busy please wait"
+            print(statement)
+            sse.publish({"message": statement}, type='publish')
 
 
     def handle(self, packet, source):
@@ -39,10 +43,14 @@ class Sender():
         # if the packet is corrupted or it is the incorrect sequence number
         if packet.state is False or packet.seqnum != self.currentState.seqnum:
             #resend
-            print("{" + str(self.env.now) + "} | " + "ACK not received correctly, resend packet")
+            statement = "{" + str(self.env.now) + "} | " + "ACK not received correctly, resend packet"
+            print(statement)
+            sse.publish({"message": statement}, type='publish')
             yield self.env.process(self.rdt_resend(source, self.currentState.seqnum))
         else:
-            print("{" + str(self.env.now) + "} | " + "ACK received for packet num: " + str(packet.seqnum) + " by sender")
+            statement = "{" + str(self.env.now) + "} | " + "ACK received for packet num: " + str(packet.seqnum) + " by sender"
+            print(statement)
+            sse.publish({"message": statement}, type='publish')
             if self.currentState.seqnum == 0:
                 self.setState('waiting-1')
             else:
@@ -53,6 +61,8 @@ class Sender():
 
     def rdt_resend(self, destination, seqnum):
         packet = ResendPacket(seqnum)
-        print("{" + str(self.env.now) + "} | " + "Resending packet num: " + str(seqnum))
+        statement = "{" + str(self.env.now) + "} | " + "Resending packet num: " + str(seqnum)
+        print(statement)
+        sse.publish({"message": statement}, type='publish')
         yield self.env.timeout(SEND_TIME)
         self.env.process(self.channel.send(destination, packet, self))

@@ -1,6 +1,6 @@
-from Simulation.rdt1_0.receiverStates import Waiting, Receiving
+from flask_sse import sse
 from Simulation.rdt1_0.packet import ACK
-
+from Simulation.rdt1_0.receiverStates import Receiving, Waiting
 
 DELIVER_TIME = 2    # time to deliver packet to upper layers
 SEND_TIME = 2   # time to send packet back to sender - ACK or NAK
@@ -16,22 +16,31 @@ class Receiver():
 
     def setState(self, state):
         self.state = self.states[state]
-        print("{" + str(self.env.now) + "} | " + "Receiver now: " + str(self.state))
+        statement = "{" + str(self.env.now) + "} | " + "Receiver now: " + str(self.state)
+        print(statement)
+        sse.publish({"message": statement}, type='publish')
 
 
     def handle(self, packet, source):
         if type(self.state) is Waiting:
             self.setState('receiving')
             seqnum = packet.seqnum
+            statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " received"
+            print(statement)
+            sse.publish({"message": statement}, type='publish')
             self.env.process(self.deliver_data(seqnum))
             yield self.env.process(self.send_ACK(seqnum, source))
         else:
-            print("{" + str(self.env.now) + "} | " + "Receiver busy please wait")
+            statement = "{" + str(self.env.now) + "} | " + "Receiver busy please wait"
+            print(statement)
+            sse.publish({"message": statement}, type='publish')
 
 
     def deliver_data(self, seqnum):
         yield self.env.timeout(DELIVER_TIME)
-        print("{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " received")
+        statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " data delivered"
+        print(statement)
+        sse.publish({"message": statement}, type='publish')
 
 
     def send_ACK(self, packet_num, source):

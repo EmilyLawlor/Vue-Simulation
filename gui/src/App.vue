@@ -4,7 +4,29 @@
       <router-link to="/">Home</router-link> |
       <router-link to="/stop-and-wait">Stop And Wait</router-link> |
       <router-link to="/go-back-n">Go Back N</router-link> |
-      <router-link to="/selective-repeat">Selective Repeat</router-link>
+      <router-link to="/selective-repeat">Selective Repeat</router-link> |
+      <b-dropdown id="dropdown" text="Others" variant="outline-primary" size="sm">
+        <b-dropdown-item>
+          <router-link :to="{ name: 'Others', params: { protocol: 'rdt2.2' } }">
+            Rdt2.2
+          </router-link>
+        </b-dropdown-item>
+        <b-dropdown-item>
+          <router-link :to="{ name: 'Others', params: { protocol: 'rdt2.0' } }">
+            Rdt2.0
+          </router-link>
+        </b-dropdown-item>
+        <b-dropdown-item>
+          <router-link :to="{ name: 'Others', params: { protocol: 'rdt1.1' } }">
+            Rdt1.1
+          </router-link>
+        </b-dropdown-item>
+        <b-dropdown-item>
+          <router-link :to="{ name: 'Others', params: { protocol: 'rdt1.0' } }">
+            Rdt1.0
+          </router-link>
+        </b-dropdown-item>
+      </b-dropdown>
     </div>
     <router-view/>
   </div>

@@ -39,17 +39,28 @@ export default {
       default: 10,
     },
   },
-  methods: {
-    start() {
-      const path = `http://localhost:5000${this.endpoint}`;
-      axios.get(path, {
-        params: {
+  computed: {
+    params() {
+      if (this.protocol === 'rdt1.0') {
+        return { runTime: this.runTime, protocol: this.protocol };
+      }
+      if (this.protocol === 'Stop and Wait' || this.protocol === 'Go Back N' || this.protocol === 'Selective Repeat') {
+        return {
           runTime: this.runTime,
           sequenceNumbers: this.sequenceNumbers,
           windowSize: this.windowSize,
           errorRate: this.errorRate,
           lossRate: this.lossRate,
-        },
+        };
+      }
+      return { runTime: this.runTime, errorRate: this.errorRate, protocol: this.protocol };
+    },
+  },
+  methods: {
+    start() {
+      const path = `http://localhost:5000${this.endpoint}`;
+      axios.get(path, {
+        params: this.params,
       })
         .then((res) => {
           this.msg = res.data;

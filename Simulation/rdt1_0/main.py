@@ -1,8 +1,9 @@
-from Simulation.rdt1_0.sender import Sender
-from Simulation.rdt1_0.receiver import Receiver
+import simpy.rt
+from flask_sse import sse
 from Simulation.rdt1_0.channel import Channel
-from Simulation.rdt1_0.senderStates import Waiting
-import simpy
+from Simulation.rdt1_0.receiver import Receiver
+from Simulation.rdt1_0.sender import Sender
+from Simulation.rdt1_0.packet import Packet
 
 
 class SimulationManager():
@@ -15,9 +16,21 @@ class SimulationManager():
 
 
     def start(self):
-        #if type(self.sender.state) is Waiting:
         while True:
             yield self.env.process(self.sender.rdt_send(self.receiver))
+
+
+class Start():
+
+    def run(self, runTime):
+        sse.publish({"protocol": "rdt1.0"}, type='start')
+        env = simpy.rt.RealtimeEnvironment()
+        sim = SimulationManager(env)
+        env.run(until=runTime)
+        statement = "END"
+        Packet().resetSeqnum()
+        print(statement)
+        sse.publish({"message": statement}, type='terminate')
 
 
 if __name__ == '__main__':

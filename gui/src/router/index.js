@@ -4,6 +4,7 @@ import Home from '../views/Home.vue';
 import StopAndWait from '../views/StopAndWait.vue';
 import SelectiveRepeat from '../views/SelectiveRepeat.vue';
 import GoBackN from '../views/GoBackN.vue';
+import Others from '../views/Others.vue';
 
 Vue.use(VueRouter);
 
@@ -27,6 +28,12 @@ const routes = [
     path: '/go-back-n',
     name: 'Go Back N',
     component: GoBackN,
+  },
+  {
+    path: '/others/:protocol',
+    name: 'Others',
+    component: Others,
+    props: true,
   },
 ];
 

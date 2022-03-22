@@ -1,34 +1,26 @@
 <template>
   <div>
       <StartButton
-        endpoint="/selective-repeat"
+        endpoint="/others"
         :updates="this.updates"
-        :protocol="this.protocol"
+        :protocol="this.$route.params.protocol"
         :isDisabled="isRunning"
 
         :runTime="this.runTime"
-        :sequenceNumbers="this.sequenceNumbers"
-        :windowSize="this.windowSize"
         :errorRate="this.errorRate"
-        :lossRate="this.lossRate"
+
       />
     <div class="updates">
       <p>{{ updates }}</p>
     </div>
     <Options
       @update-run-time="updateRunTime"
-      @update-sequence-numbers="updateSequenceNumbers"
-      @update-window-size="updateWindowSize"
       @update-error-rate="updateErrorRate"
-      @update-loss-rate="updateLossRate"
 
-      :sequenceNumbersSlider="sequenceNumbers"
-      :windowSizeSlider="windowSize"
-      :errorRateSlider="errorRate"
-      :lossRateSlider="lossRate"
+      :errorRate="errorRate"
       :isDisabled="isRunning"
 
-      :protocol="this.protocol"
+      :protocol="this.$route.params.protocol"
     />
   </div>
 </template>
@@ -38,7 +30,7 @@ import Options from '@/components/Options.vue';
 import StartButton from '@/components/StartButton.vue';
 
 export default {
-  name: 'SelectiveRepeat',
+  name: 'Others',
   components: {
     StartButton,
     Options,
@@ -49,29 +41,15 @@ export default {
       isRunning: false,
 
       runTime: 1,
-      sequenceNumbers: 20,
-      windowSize: 5,
       errorRate: 0,
-      lossRate: 0,
-
-      protocol: 'Selective Repeat',
     };
   },
   methods: {
     updateRunTime(value) {
       this.runTime = value;
     },
-    updateSequenceNumbers(value) {
-      this.sequenceNumbers = value;
-    },
-    updateWindowSize(value) {
-      this.windowSize = value;
-    },
     updateErrorRate(value) {
       this.errorRate = value;
-    },
-    updateLossRate(value) {
-      this.lossRate = value;
     },
   },
   mounted() {
@@ -99,7 +77,7 @@ export default {
     try {
       eventSource.addEventListener('start', (event) => {
         const data = JSON.parse(event.data);
-        if (data.protocol === 'Selective-Repeat') {
+        if (data.protocol === this.$route.params.protocol) {
           this.updates = '';
           this.isRunning = true;
         }

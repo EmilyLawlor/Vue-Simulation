@@ -31,7 +31,7 @@ class Receiver():
             print(statement)
             sse.publish({"message": statement}, type='publish')
             self.lastACK = seqnum
-            yield self.env.process(self.deliver_data(seqnum))
+            self.env.process(self.deliver_data(seqnum))
             yield self.env.process(self.send_ACK(self.lastACK, source))
         # packet is corrupted or incorrect seqnum
         elif packet.state is False:

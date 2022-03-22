@@ -3,7 +3,7 @@ from flask_sse import sse
 
 
 class Channel():
-    def __init__(self,env, errorRate, lossRate):
+    def __init__(self, env, errorRate, lossRate):
         self.env = env
         self.errorRate = int(errorRate/10)
         self.lossRate = int(lossRate/10)

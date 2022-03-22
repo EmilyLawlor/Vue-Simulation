@@ -1,18 +1,19 @@
 <template>
     <div class="options">
         <div>
-            Run Time: {{ this.runTimeSlider }} minute
+            Run Time: {{ this.runTimeSlider }}
+            <p v-if="this.runTimeSlider == 1">minute</p>
+            <p v-else>minutes</p>
             <vue-slider
                 v-model="runTimeSlider"
-                :min=1
-                :max=5
+                :min=0.5
+                :max=3
+                :interval=0.5
                 :disabled=isDisabled
             />
         </div>
 
-        <br>
-
-        <div>
+        <div v-if="showExtraOptions">
             Sequence Numbers: {{ this.sequenceNumbersSlider }}
             <vue-slider
                 v-model="sequenceNumbersSlider"
@@ -22,9 +23,7 @@
             />
         </div>
 
-        <br>
-
-        <div v-if="protocol!='Stop and Wait'" >
+        <div v-if="protocol!='Stop and Wait' && showExtraOptions">
             Window Size: {{ this.windowSizeSlider }}
             <vue-slider
                 v-model="windowSizeSlider"
@@ -34,9 +33,7 @@
             />
         </div>
 
-        <br>
-
-        <div>
+        <div v-if="showErrorRate">
             Error Rate: {{ this.errorRateSlider }}%
             <vue-slider
                 v-model="errorRateSlider"
@@ -47,9 +44,7 @@
             />
         </div>
 
-        <br>
-
-        <div>
+        <div v-if="showExtraOptions">
             Packet Loss Rate: {{ this.lossRateSlider }}%
             <vue-slider
                 v-model="lossRateSlider"
@@ -104,28 +99,20 @@ export default {
       lossRateSlider: this.lossRate,
     };
   },
+  computed: {
+    showErrorRate() {
+      return this.protocol !== 'rdt1.0';
+    },
+    showExtraOptions() {
+      let show = true;
+      if (this.protocol === 'rdt1.0') { show = false; }
+      if (this.protocol === 'rdt1.1') { show = false; }
+      if (this.protocol === 'rdt2.0') { show = false; }
+      if (this.protocol === 'rdt2.2') { show = false; }
+      return show;
+    },
+  },
   watch: {
-    /*     runTime(newVal, oldVal) {
-      // this check is mandatory to prevent endless cycle
-      if (newVal !== oldVal) this.runTimeSlider = newVal;
-    },
-    sequenceNumbers(newVal, oldVal) {
-      // this check is mandatory to prevent endless cycle
-      if (newVal !== oldVal) this.sequenceNumbersSlider = newVal;
-    },
-    windowSize(newVal, oldVal) {
-      // this check is mandatory to prevent endless cycle
-      if (newVal !== oldVal) this.windowSizeSlider = newVal;
-    },
-    errorRate(newVal, oldVal) {
-      // this check is mandatory to prevent endless cycle
-      if (newVal !== oldVal) this.errorRateSlider = newVal;
-    },
-    lossRate(newVal, oldVal) {
-      // this check is mandatory to prevent endless cycle
-      if (newVal !== oldVal) this.lossRateSlider = newVal;
-    }, */
-
     runTimeSlider(newVal, oldVal) {
       // this check is mandatory to prevent endless cycle
       if (newVal !== oldVal) this.$emit('update-run-time', newVal);
@@ -146,7 +133,6 @@ export default {
       // this check is mandatory to prevent endless cycle
       if (newVal !== oldVal) this.$emit('update-loss-rate', newVal);
     },
-
   },
 };
 </script>
@@ -161,6 +147,10 @@ export default {
     border: 1px solid black;
     border-radius: 10px;
     margin-right: 5px;
+}
+
+.options div {
+  padding: 5px;
 }
 
 </style>

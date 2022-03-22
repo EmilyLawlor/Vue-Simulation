@@ -24,7 +24,6 @@ class Start():
     def run(self, runTime, errorRate, lossRate, windowSize):
         sse.publish({"protocol": "Go-Back-N"}, type='start')
         env = simpy.rt.RealtimeEnvironment()
-        # all varibales passed from GUI to back end will go through here, only to be picked by users through dropdowns and sliders and will be set throguh setters
         sim = SimulationManager(env, errorRate, lossRate, windowSize)
         env.run(until=runTime)
         statement = "END"
