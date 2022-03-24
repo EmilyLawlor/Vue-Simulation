@@ -7,13 +7,14 @@ SEND_TIME = 2
 
 
 class Sender():
-    def __init__(self, env, channel):
+    def __init__(self, env, channel, stats):
         self.env = env
         self.sequenceNumbers = [0,1]
         self.currentSeqNum = self.sequenceNumbers[0]
         self.states = {'waiting0': WaitingFirst(), 'sending0':SendingFirst(), 'waiting1': WaitingSecond(), 'sending1':SendingSecond()}
         self.currentState = self.states['waiting0']
         self.channel = channel
+        self.stats = stats
 
 
     def setState(self, state):
@@ -51,6 +52,7 @@ class Sender():
         # Decides what to do with ACKs and NAKs received
         # if the packet is an ACK and it is not corrupted
         if type(packet) is ACK and packet.state is True:
+            self.stats.incrementPacketsSuccessfullySent()
             statement = "{" + str(self.env.now) + "} | " + "ACK received for packet num: " + str(packet.seqnum) + " by sender"
             print(statement)
             sse.publish({"message": statement}, type='publish')

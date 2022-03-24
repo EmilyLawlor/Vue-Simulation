@@ -5,11 +5,12 @@ from Simulation.rdt1_0.senderStates import Sending, Waiting
 SEND_TIME = 2   # time to send a packet to receiver
 
 class Sender():
-    def __init__(self, env, channel):
+    def __init__(self, env, channel, stats):
         self.env = env
         self.state = Waiting()
         self.states = {'waiting': Waiting(), 'sending':Sending()}
         self.channel = channel
+        self.stats = stats
 
 
     def setState(self, state):
@@ -23,6 +24,7 @@ class Sender():
         if type(self.state) is Waiting:
             self.setState('sending')
             packet = Packet('data')
+            self.stats.incrementPacketsGenerated()
             statement = "{" + str(self.env.now) + "} | " + "Sending packet num " + str(packet.seqnum)
             print(statement)
             sse.publish({"message": statement}, type='publish')
@@ -36,6 +38,7 @@ class Sender():
 
     def handle(self, packet, source):
         # Decides what to do with ACKs received
+        self.stats.incrementPacketsSuccessfullySent()
         statement = "{" + str(self.env.now) + "} | " + "ACK received for packet num: " + str(packet.packet_num) + " by sender"
         print(statement)
         sse.publish({"message": statement}, type='publish')

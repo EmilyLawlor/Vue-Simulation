@@ -11,13 +11,14 @@ TIMEOUT_INTERVAL = 5
 
 
 class Sender():
-    def __init__(self, env, channel):
+    def __init__(self, env, channel, stats):
         self.env = env
         self.states = {'waiting-0':Waiting(0), 'waiting-1':Waiting(1), 'sending-0':Sending(0), 'sending-1':Sending(1)}
         self.currentState = self.states['waiting-0']
         self.channel = channel
         self.window = simpy.Resource(self.env, capacity=1)
         self.timer = None
+        self.stats = stats
 
 
     def setState(self, state):
@@ -30,6 +31,7 @@ class Sender():
     def generate_packets(self, destination):
         # continuously create packets, generated after random interval
         while True:
+            self.stats.incrementPacketsGenerated()
             packet=Packet('data')
             self.env.process(self.rdt_send(destination, packet))
             # average time between sending packets
@@ -82,6 +84,7 @@ class Sender():
             yield self.env.process(self.rdt_resend(source, self.currentState.seqnum))
         else:
             statement = "{" + str(self.env.now) + "} | " + "ACK received for packet num: " + str(packet.seqnum) + " by sender"
+            self.stats.incrementPacketsSuccessfullySent()
             print(statement)
             sse.publish({"message": statement}, type='publish')
             # packet receive ok stop timer, if it has not already been stopped

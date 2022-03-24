@@ -4,14 +4,15 @@ from Simulation.rdt1_0.channel import Channel
 from Simulation.rdt1_0.receiver import Receiver
 from Simulation.rdt1_0.sender import Sender
 from Simulation.rdt1_0.packet import Packet
+from Simulation.Utils.statistics import Statistics
 
 
 class SimulationManager():
-    def __init__(self, env):
+    def __init__(self, env, stats):
         self.env = env
         self.channel = Channel(self.env)
         self.receiver = Receiver(self.env, self.channel)
-        self.sender = Sender(self.env, self.channel)
+        self.sender = Sender(self.env, self.channel, stats)
         self.action = self.env.process(self.start())
 
 
@@ -24,13 +25,16 @@ class Start():
 
     def run(self, runTime):
         sse.publish({"protocol": "rdt1.0"}, type='start')
+        stats = Statistics('rdt1.0')
         env = simpy.rt.RealtimeEnvironment()
-        sim = SimulationManager(env)
+        sim = SimulationManager(env, stats)
         env.run(until=runTime)
         statement = "END"
         Packet().resetSeqnum()
         print(statement)
-        sse.publish({"message": statement}, type='terminate')
+        stats = stats.getStats()
+        stats['message'] = statement
+        sse.publish(stats, type='terminate')
 
 
 if __name__ == '__main__':

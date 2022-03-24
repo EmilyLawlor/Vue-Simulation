@@ -12,7 +12,7 @@ TIMEOUT_INTERVAL = 5
 
 
 class Sender():
-    def __init__(self, env, channel, windowSize):
+    def __init__(self, env, channel, windowSize, stats):
         self.env = env
         self.states = {'waiting':Waiting(), 'sending':Sending()}
         self.currentState = self.states['waiting']
@@ -22,6 +22,7 @@ class Sender():
         self.timer = None
         self.nextSeqNum = 1
         self.base = 1
+        self.stats = stats
 
 
     def setState(self, state):
@@ -35,6 +36,7 @@ class Sender():
     def generate_packets(self, destination):
         # continuously create packets, generated after random interval
         while True:
+            self.stats.incrementPacketsGenerated()
             packet=Packet(self.nextSeqNum, 'data')
             self.env.process(self.rdt_send(destination, packet))
 
@@ -96,6 +98,8 @@ class Sender():
             statement = "{" + str(self.env.now) + "} | " + "ACK received for packet num: " + str(packet.seqnum) + " by sender"
             print(statement)
             sse.publish({"message": statement}, type='publish')
+
+            self.stats.incrementPacketsSuccessfullySent()
 
             self.base = packet.seqnum + 1
             # if this ACKs the last unACKed packet in channel, stop timer and wait

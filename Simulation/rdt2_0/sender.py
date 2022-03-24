@@ -6,11 +6,12 @@ SEND_TIME = 2
 
 
 class Sender():
-    def __init__(self, env, channel):
+    def __init__(self, env, channel, stats):
         self.env = env
         self.state = Waiting()
         self.states = {'waiting': Waiting(), 'sending':Sending()}
         self.channel = channel
+        self.stats = stats
 
 
     def setState(self, state):
@@ -38,6 +39,7 @@ class Sender():
     def handle(self, packet, source):
         # Decides what to do with ACKs received
         if type(packet) is ACK and packet.state is not False:
+            self.stats.incrementPacketsSuccessfullySent()
             statement = "{" + str(self.env.now) + "} | " + "ACK received for packet num: " + str(packet.seqnum) + " by sender"
             print(statement)
             sse.publish({"message": statement}, type='publish')

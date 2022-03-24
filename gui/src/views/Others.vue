@@ -13,11 +13,17 @@
     <div class="updates">
       <p>{{ updates }}</p>
     </div>
+    <Statistics
+      class="stats"
+      :generated="this.generated"
+      :sent="this.sent"
+      :lost="this.lost"
+      :errors="this.errors"
+    />
     <Options
       @update-run-time="updateRunTime"
       @update-error-rate="updateErrorRate"
 
-      :errorRate="errorRate"
       :isDisabled="isRunning"
 
       :protocol="this.$route.params.protocol"
@@ -28,12 +34,14 @@
 <script>
 import Options from '@/components/Options.vue';
 import StartButton from '@/components/StartButton.vue';
+import Statistics from '@/components/Statistics.vue';
 
 export default {
   name: 'Others',
   components: {
     StartButton,
     Options,
+    Statistics,
   },
   data() {
     return {
@@ -41,7 +49,12 @@ export default {
       isRunning: false,
 
       runTime: 1,
-      errorRate: 0,
+      errorRate: 10,
+
+      sent: 0,
+      generated: 0,
+      lost: 0,
+      errors: 0,
     };
   },
   methods: {
@@ -69,6 +82,11 @@ export default {
         const data = JSON.parse(event.data);
         this.updates += `${data.message}\n`;
         this.isRunning = false;
+        this.generated = data.generated;
+        this.sent = data.successfullySent;
+        this.lost = data.lost;
+        this.errors = data.errors;
+        console.log(data.generated);
       }, false);
     } catch (err) {
       console.log(err);
@@ -90,5 +108,5 @@ export default {
 </script>
 
 <style scoped>
-@import "index.css"
+@import "index.css";
 </style>

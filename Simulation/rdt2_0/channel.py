@@ -2,15 +2,17 @@ from random import randrange
 from flask_sse import sse
 
 class Channel():
-    def __init__(self, env, errorRate):
+    def __init__(self, env, errorRate, stats):
         self.env = env
         self.errorRate = errorRate
+        self.stats = stats
 
 
     def send(self, destination, packet, source):
         errors = randrange(9)
         if errors < self.errorRate:
             # bit error
+            self.stats.incrementBitErrorsOccurred()
             statement = "{" + str(self.env.now) + "} | " + "Bit errors occured in " + packet.__class__.__name__ + " number " + str(packet.seqnum)
             print(statement)
             sse.publish({"message": statement}, type='publish')

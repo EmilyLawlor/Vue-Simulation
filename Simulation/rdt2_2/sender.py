@@ -6,11 +6,12 @@ SEND_TIME = 2
 
 
 class Sender():
-    def __init__(self, env, channel):
+    def __init__(self, env, channel, stats):
         self.env = env
         self.states = {'waiting-0':Waiting(0), 'waiting-1':Waiting(1), 'sending-0':Sending(0), 'sending-1':Sending(1)}
         self.currentState = self.states['waiting-0']
         self.channel = channel
+        self.stats = stats
 
 
     def setState(self, state):
@@ -43,11 +44,13 @@ class Sender():
         # if the packet is corrupted or it is the incorrect sequence number
         if packet.state is False or packet.seqnum != self.currentState.seqnum:
             #resend
+            
             statement = "{" + str(self.env.now) + "} | " + "ACK not received correctly, resend packet"
             print(statement)
             sse.publish({"message": statement}, type='publish')
             yield self.env.process(self.rdt_resend(source, self.currentState.seqnum))
         else:
+            self.stats.incrementPacketsSuccessfullySent()
             statement = "{" + str(self.env.now) + "} | " + "ACK received for packet num: " + str(packet.seqnum) + " by sender"
             print(statement)
             sse.publish({"message": statement}, type='publish')
