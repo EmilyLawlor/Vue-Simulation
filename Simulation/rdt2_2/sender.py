@@ -44,7 +44,6 @@ class Sender():
         # if the packet is corrupted or it is the incorrect sequence number
         if packet.state is False or packet.seqnum != self.currentState.seqnum:
             #resend
-            
             statement = "{" + str(self.env.now) + "} | " + "ACK not received correctly, resend packet"
             print(statement)
             sse.publish({"message": statement}, type='publish')

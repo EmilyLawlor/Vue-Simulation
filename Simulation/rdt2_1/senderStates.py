@@ -1,4 +1,4 @@
-from Simulation.rdt1_1.state import State
+from Simulation.rdt2_1.state import State
 
 class Waiting(State):
     def __init__(self):
@@ -7,28 +7,28 @@ class Waiting(State):
 
 class WaitingFirst(Waiting):
     def __init__(self):
-        self.seqnum = 0
         super().__init__()
+        self.seqnum = 0
 
 
 class WaitingSecond(Waiting):
     def __init__(self):
-        self.seqnum = 1
         super().__init__()
+        self.seqnum = 1
 
 
-class Receiving(State):
+class Sending(State):
     def __init__(self):
-        super(Receiving, self).__init__('Receiving')
+        super(Sending, self).__init__('Sending')
 
 
-class ReceivingFirst(Receiving):
+class SendingFirst(Sending):
     def __init__(self):
+        super().__init__()
         self.seqnum = 0
-        super().__init__()
 
 
-class ReceivingSecond(Receiving):
+class SendingSecond(Sending):
     def __init__(self):
-        self.seqnum = 1
         super().__init__()
+        self.seqnum = 1

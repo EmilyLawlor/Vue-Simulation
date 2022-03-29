@@ -106,8 +106,8 @@ export default {
     showExtraOptions() {
       let show = true;
       if (this.protocol === 'rdt1.0') { show = false; }
-      if (this.protocol === 'rdt1.1') { show = false; }
       if (this.protocol === 'rdt2.0') { show = false; }
+      if (this.protocol === 'rdt2.1') { show = false; }
       if (this.protocol === 'rdt2.2') { show = false; }
       return show;
     },

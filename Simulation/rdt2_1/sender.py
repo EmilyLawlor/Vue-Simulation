@@ -1,6 +1,6 @@
 from flask_sse import sse
-from Simulation.rdt1_1.packet import ACK, NAK, DataPacket, ResendPacket
-from Simulation.rdt1_1.senderStates import (SendingFirst, SendingSecond,
+from Simulation.rdt2_1.packet import ACK, NAK, DataPacket, ResendPacket
+from Simulation.rdt2_1.senderStates import (SendingFirst, SendingSecond,
                                             WaitingFirst, WaitingSecond)
 
 SEND_TIME = 2

@@ -7,8 +7,8 @@ from Simulation.rdt3_0.main import Start as StopAndWait
 from Simulation.GBN.main import Start as GoBackN
 from Simulation.SR.main import Start as SelectiveRepeat
 from Simulation.rdt2_2.main import Start as rdt2_2
+from Simulation.rdt2_1.main import Start as rdt2_1
 from Simulation.rdt2_0.main import Start as rdt2_0
-from Simulation.rdt1_1.main import Start as rdt1_1
 from Simulation.rdt1_0.main import Start as rdt1_0
 
 DEBUG = True
@@ -49,10 +49,10 @@ def others():
 
     if protocol == 'rdt2.2':
         rdt2_2().run(runTimeSeconds, int(request.args['errorRate']))
+    elif protocol == 'rdt2.1':
+        rdt2_1().run(runTimeSeconds, int(request.args['errorRate']))
     elif protocol == 'rdt2.0':
         rdt2_0().run(runTimeSeconds, int(request.args['errorRate']))
-    elif protocol == 'rdt1.1':
-        rdt1_1().run(runTimeSeconds, int(request.args['errorRate']))
     else:
         rdt1_0().run(runTimeSeconds)
     

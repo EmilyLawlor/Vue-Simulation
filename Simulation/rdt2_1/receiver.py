@@ -1,6 +1,6 @@
 from flask_sse import sse
-from Simulation.rdt1_1.packet import ACK, NAK
-from Simulation.rdt1_1.receiverStates import WaitingFirst, WaitingSecond
+from Simulation.rdt2_1.packet import ACK, NAK
+from Simulation.rdt2_1.receiverStates import WaitingFirst, WaitingSecond
 
 DELIVER_TIME = 2    # time to deliver packet to upper layers
 SEND_TIME = 2   # time to send packet back to sender - ACK or NAK

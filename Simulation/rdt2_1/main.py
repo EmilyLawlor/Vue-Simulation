@@ -1,9 +1,9 @@
 import simpy.rt
 from flask_sse import sse
-from Simulation.rdt1_1.channel import Channel
-from Simulation.rdt1_1.packet import DataPacket
-from Simulation.rdt1_1.receiver import Receiver
-from Simulation.rdt1_1.sender import Sender
+from Simulation.rdt2_1.channel import Channel
+from Simulation.rdt2_1.packet import DataPacket
+from Simulation.rdt2_1.receiver import Receiver
+from Simulation.rdt2_1.sender import Sender
 from Simulation.Utils.statistics import Statistics
 
 
@@ -31,8 +31,8 @@ class SimulationManager():
 class Start():
 
     def run(self, runTime, errorRate):
-        sse.publish({"protocol": "rdt1.1"}, type='start')
-        stats = Statistics('rdt1.1')
+        sse.publish({"protocol": "rdt2.1"}, type='start')
+        stats = Statistics('rdt2.1')
         env = simpy.rt.RealtimeEnvironment()
         sim = SimulationManager(env, errorRate, stats)
         env.run(until=runTime)

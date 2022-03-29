@@ -24,8 +24,8 @@ class Receiver():
 
 
     def handle(self, packet, source):
-        # packet is not corrupted
         seqnum = packet.seqnum
+        # packet is not corrupted
         if packet.state is True and seqnum == self.currentState.seqnum:
             statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " received"
             print(statement)

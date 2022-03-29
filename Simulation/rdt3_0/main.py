@@ -16,7 +16,6 @@ class SimulationManager():
 
 
     def start(self):
-        #if type(self.sender.state) is Waiting:
         while True:
             yield self.env.process(self.sender.generate_packets(self.receiver))
 

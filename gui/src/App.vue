@@ -12,13 +12,13 @@
           </router-link>
         </b-dropdown-item>
         <b-dropdown-item>
-          <router-link :to="{ name: 'Others', params: { protocol: 'rdt2.0' } }">
-            Rdt2.0
+          <router-link :to="{ name: 'Others', params: { protocol: 'rdt2.1' } }">
+            Rdt2.1
           </router-link>
         </b-dropdown-item>
         <b-dropdown-item>
-          <router-link :to="{ name: 'Others', params: { protocol: 'rdt1.1' } }">
-            Rdt1.1
+          <router-link :to="{ name: 'Others', params: { protocol: 'rdt2.0' } }">
+            Rdt2.0
           </router-link>
         </b-dropdown-item>
         <b-dropdown-item>

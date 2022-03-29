@@ -1,6 +1,6 @@
 from random import randrange
 from flask_sse import sse
-from Simulation.rdt1_1.packet import DataPacket, ResendPacket
+from Simulation.rdt2_1.packet import DataPacket, ResendPacket
 
 class Channel():
     def __init__(self,env, errorRate, stats):
