@@ -23,7 +23,7 @@
             />
         </div>
 
-        <div v-if="protocol!='Stop and Wait' && showExtraOptions">
+        <div v-if="protocol!='Stop-and-Wait' && showExtraOptions">
             Window Size: {{ this.windowSizeSlider }}
             <vue-slider
                 v-model="windowSizeSlider"

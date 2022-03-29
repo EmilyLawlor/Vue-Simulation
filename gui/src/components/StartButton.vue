@@ -44,7 +44,7 @@ export default {
       if (this.protocol === 'rdt1.0') {
         return { runTime: this.runTime, protocol: this.protocol };
       }
-      if (this.protocol === 'Stop and Wait' || this.protocol === 'Go Back N' || this.protocol === 'Selective Repeat') {
+      if (this.protocol === 'Stop-and-Wait' || this.protocol === 'Go-Back-N' || this.protocol === 'Selective-Repeat') {
         return {
           runTime: this.runTime,
           sequenceNumbers: this.sequenceNumbers,

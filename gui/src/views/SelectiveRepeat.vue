@@ -64,7 +64,7 @@ export default {
       lost: 0,
       errors: 0,
 
-      protocol: 'Selective Repeat',
+      protocol: 'Selective-Repeat',
     };
   },
   methods: {
@@ -113,7 +113,7 @@ export default {
     try {
       eventSource.addEventListener('start', (event) => {
         const data = JSON.parse(event.data);
-        if (data.protocol === 'Selective-Repeat') {
+        if (data.protocol === this.protocol) {
           this.updates = '';
           this.isRunning = true;
         }

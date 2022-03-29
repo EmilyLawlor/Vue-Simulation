@@ -11,7 +11,7 @@ class SimulationManager():
     def __init__(self, env, errorRate, lossRate, windowSize, stats):
         self.env = env
         self.channel = Channel(self.env, errorRate, lossRate, stats)
-        self.receiver = Receiver(self.env, self.channel, windowSize, stats)
+        self.receiver = Receiver(self.env, self.channel, windowSize)
         self.sender = Sender(self.env, self.channel, windowSize, stats)
         self.action = self.env.process(self.start())
 

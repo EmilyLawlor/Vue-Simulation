@@ -24,7 +24,7 @@ class Sender():
         if type(self.state) is Waiting:
             self.setState('sending')
             packet = Packet('data')
-            self.stats.incrementPacketsGenerated()
+            sse.publish({"packetNumber": packet.seqnum-1}, type='send')
             statement = "{" + str(self.env.now) + "} | " + "Sending packet num " + str(packet.seqnum)
             print(statement)
             sse.publish({"message": statement}, type='publish')

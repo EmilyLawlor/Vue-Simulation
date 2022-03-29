@@ -1,6 +1,7 @@
 import simpy.rt
 from flask_sse import sse
 from Simulation.rdt1_1.channel import Channel
+from Simulation.rdt1_1.packet import DataPacket
 from Simulation.rdt1_1.receiver import Receiver
 from Simulation.rdt1_1.sender import Sender
 from Simulation.Utils.statistics import Statistics
@@ -40,6 +41,7 @@ class Start():
         stats = stats.getStats()
         stats['message'] = statement
         sse.publish(stats, type='terminate')
+        DataPacket.resetId()
 
 
 if __name__ == '__main__':

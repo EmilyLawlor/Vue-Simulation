@@ -1,17 +1,17 @@
 <template>
   <div>
-      <StartButton
-        endpoint='/stop-and-wait'
-        :updates="this.updates"
-        :protocol="this.protocol"
-        :isDisabled="isRunning"
+    <StartButton
+      endpoint='/stop-and-wait'
+      :updates="this.updates"
+      :protocol="this.protocol"
+      :isDisabled="isRunning"
 
-        :runTime="this.runTime"
-        :sequenceNumbers="this.sequenceNumbers"
-        :windowSize="this.windowSize"
-        :errorRate="this.errorRate"
-        :lossRate="this.lossRate"
-      />
+      :runTime="this.runTime"
+      :sequenceNumbers="this.sequenceNumbers"
+      :windowSize="this.windowSize"
+      :errorRate="this.errorRate"
+      :lossRate="this.lossRate"
+    />
     <div class="updates">
       <p>{{ updates }}</p>
     </div>
@@ -59,7 +59,7 @@ export default {
       errorRate: 0,
       lossRate: 0,
 
-      protocol: 'Stop and Wait',
+      protocol: 'Stop-and-Wait',
 
       sent: 0,
       generated: 0,
@@ -113,10 +113,19 @@ export default {
     try {
       eventSource.addEventListener('start', (event) => {
         const data = JSON.parse(event.data);
-        if (data.protocol === 'Stop-and-Wait') {
+        if (data.protocol === this.protocol) {
           this.updates = '';
           this.isRunning = true;
         }
+      }, false);
+    } catch (err) {
+      console.log(err);
+    }
+
+    try {
+      eventSource.addEventListener('send', (event) => {
+        const data = JSON.parse(event.data);
+        this.send(data.packetNumber);
       }, false);
     } catch (err) {
       console.log(err);

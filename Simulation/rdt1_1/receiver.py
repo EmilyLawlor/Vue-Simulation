@@ -32,13 +32,13 @@ class Receiver():
                 sse.publish({"message": statement}, type='publish')
                 self.env.process(self.deliver_data(seqnum))
                 self.setState('waiting1')
-                yield self.env.process(self.send_ACK(seqnum, source))
+                yield self.env.process(self.send_ACK(packet, source))
             # packet receive is corrupted
             elif packet.state is False:
-                yield self.env.process(self.send_NAK(seqnum, source))
+                yield self.env.process(self.send_NAK(packet, source))
             # packet received uncorrupted but wrong sequence number
             elif packet.state is True and seqnum != 0:
-                self.env.process(self.send_ACK(seqnum, source))
+                self.env.process(self.send_ACK(packet, source))
         elif type(self.currentState) == type(self.states['waiting1']):
             # packet received uncorrupted and in correct order
             if packet.state is True and seqnum == 1:
@@ -47,13 +47,13 @@ class Receiver():
                 sse.publish({"message": statement}, type='publish')
                 self.env.process(self.deliver_data(seqnum))
                 self.setState('waiting0')
-                yield self.env.process(self.send_ACK(seqnum, source))
+                yield self.env.process(self.send_ACK(packet, source))
             # packet receive is corrupted
             elif packet.state is False:
-                yield self.env.process(self.send_NAK(seqnum, source))
+                yield self.env.process(self.send_NAK(packet, source))
             # packet received uncorrupted but wrong sequence number
             elif packet.state is True and seqnum != 1:
-                self.env.process(self.send_ACK(seqnum, source))
+                self.env.process(self.send_ACK(packet, source))
         else:
             statement = "{" + str(self.env.now) + "} | " + "Receiver busy please wait"
             print(statement)
@@ -67,19 +67,21 @@ class Receiver():
         sse.publish({"message": statement}, type='publish')
         
 
-    def send_ACK(self, packet_num, source):
-        statement = "{" + str(self.env.now) + "} | " + "Sending ACK for packet num: " + str(packet_num)
+    def send_ACK(self, packet, source):
+        sse.publish({"packetNumber": packet.id}, type='ACK')
+        statement = "{" + str(self.env.now) + "} | " + "Sending ACK for packet num: " + str(packet.seqnum)
         print(statement)
         sse.publish({"message": statement}, type='publish')
-        ack = ACK(packet_num)
+        ack = ACK(packet.seqnum, packet.id)
         yield self.env.timeout(SEND_TIME)
         self.env.process(self.channel.send(source, ack, self))
 
 
-    def send_NAK(self, packet_num, source):
-        statement = "{" + str(self.env.now) + "} | " + "Sending NAK for packet num: " + str(packet_num)
+    def send_NAK(self, packet, source):
+        sse.publish({"packetNumber": packet.id}, type='NAK')
+        statement = "{" + str(self.env.now) + "} | " + "Sending NAK for packet num: " + str(packet.seqnum)
         print(statement)
         sse.publish({"message": statement}, type='publish')
-        nak = NAK(packet_num)
+        nak = NAK(packet.seqnum, packet.id)
         yield self.env.timeout(SEND_TIME)
         self.env.process(self.channel.send(source, nak, self))

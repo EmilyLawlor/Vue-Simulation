@@ -4,7 +4,7 @@ from flask_sse import sse
 class Channel():
     def __init__(self, env, errorRate, stats):
         self.env = env
-        self.errorRate = errorRate
+        self.errorRate = int(errorRate/10)
         self.stats = stats
 
 

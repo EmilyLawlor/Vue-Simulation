@@ -14,11 +14,16 @@ class SimulationManager():
         self.receiver = Receiver(self.env, self.channel)
         self.sender = Sender(self.env, self.channel, stats)
         self.action = self.env.process(self.start())
-
+        self.stats = stats
 
     def start(self):
         while True:
-            yield self.env.process(self.sender.rdt_send(self.receiver))
+            self.stats.incrementPacketsGenerated()
+            statement = "{" + str(self.env.now) + "} | " + "New packet ready to send"
+            print(statement)
+            sse.publish({"message": statement}, type='publish')
+            self.env.process(self.sender.rdt_send(self.receiver))
+            yield self.env.timeout(5)   # new packet generated to send every 3 units time
 
 
 class Start():

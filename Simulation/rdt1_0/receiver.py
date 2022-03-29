@@ -46,6 +46,10 @@ class Receiver():
     def send_ACK(self, packet_num, source):
         ack = ACK(packet_num)
         self.setState('waiting')
-        self.env.process(self.channel.send(source, ack, self))
+        sse.publish({"packetNumber": packet_num-1}, type='ACK')
+        statement = "{" + str(self.env.now) + "} | " + "Sending ACK for packet num: " + str(packet_num)
+        print(statement)
+        sse.publish({"message": statement}, type='publish')
         yield self.env.timeout(SEND_TIME)
+        self.env.process(self.channel.send(source, ack, self))
         

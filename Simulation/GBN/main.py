@@ -24,7 +24,7 @@ class SimulationManager():
 class Start():
 
     def run(self, runTime, errorRate, lossRate, windowSize):
-        sse.publish({"protocol": "Go-Back-N"}, type='start')
+        sse.publish({"protocol": 'Go-Back-N'}, type='start')
         stats = Statistics('Selective-Repeat')
         env = simpy.rt.RealtimeEnvironment()
         sim = SimulationManager(env, errorRate, lossRate, windowSize, stats)

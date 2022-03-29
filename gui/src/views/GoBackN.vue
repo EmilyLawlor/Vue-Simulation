@@ -64,7 +64,7 @@ export default {
       lost: 0,
       errors: 0,
 
-      protocol: 'Go Back N',
+      protocol: 'Go-Back-N',
     };
   },
   methods: {
@@ -113,7 +113,7 @@ export default {
     try {
       eventSource.addEventListener('start', (event) => {
         const data = JSON.parse(event.data);
-        if (data.protocol === 'Go-Back-N') {
+        if (data.protocol === this.protocol) {
           this.updates = '';
           this.isRunning = true;
         }
