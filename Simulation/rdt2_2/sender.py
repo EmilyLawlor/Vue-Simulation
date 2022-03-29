@@ -12,6 +12,7 @@ class Sender():
         self.currentState = self.states['waiting-0']
         self.channel = channel
         self.stats = stats
+        self.currentPacketID = 1
 
 
     def setState(self, state):
@@ -28,6 +29,8 @@ class Sender():
             else:
                 self.setState('sending-1')
             packet=Packet(self.currentState.seqnum, 'data')
+            self.currentPacketID = packet.id
+            sse.publish({"packetNumber": packet.id}, type='send')
             statement = "{" + str(self.env.now) + "} | " + "Sending packet num " + str(packet.seqnum)
             print(statement)
             sse.publish({"message": statement}, type='publish')
@@ -62,7 +65,8 @@ class Sender():
 
 
     def rdt_resend(self, destination, seqnum):
-        packet = ResendPacket(seqnum)
+        sse.publish({"packetNumber": self.currentPacketID}, type='resend')
+        packet = ResendPacket(seqnum, self.currentPacketID)
         statement = "{" + str(self.env.now) + "} | " + "Resending packet num: " + str(seqnum)
         print(statement)
         sse.publish({"message": statement}, type='publish')

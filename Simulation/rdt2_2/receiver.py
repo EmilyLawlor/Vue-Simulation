@@ -13,7 +13,8 @@ class Receiver():
         self.currentState = self.states['waiting-0']
         self.channel = channel
         # the sender will be expecting an ACK 0 for the first packet, if this is corrupted use 1 for the sequece # on the ACK to tell the sender something is wrong, after first packet, last ACK will be updated
-        self.lastACK = 1
+        # tuple (sequence number, id number)
+        self.lastACK = (1, -1)
 
 
     def setState(self, state):
@@ -30,7 +31,7 @@ class Receiver():
             statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " received"
             print(statement)
             sse.publish({"message": statement}, type='publish')
-            self.lastACK = seqnum
+            self.lastACK = (seqnum, packet.id)
             self.env.process(self.deliver_data(seqnum))
         # packet is corrupted or incorrect seqnum
         elif packet.state is False or seqnum != self.currentState.seqnum:
@@ -53,10 +54,11 @@ class Receiver():
             self.setState('waiting-0')
 
 
-    def send_ACK(self, packet_num, source):
-        statement = "{" + str(self.env.now) + "} | " + "Sending ACK for packet num: " + str(packet_num)
+    def send_ACK(self, packet, source):
+        sse.publish({"packetNumber": packet[1]}, type='ACK')
+        statement = "{" + str(self.env.now) + "} | " + "Sending ACK for packet num: " + str(packet[0])
         print(statement)
         sse.publish({"message": statement}, type='publish')
-        ack = ACK(packet_num)
+        ack = ACK(packet[0], packet[1])
         yield self.env.timeout(SEND_TIME)
         self.env.process(self.channel.send(source, ack, self))

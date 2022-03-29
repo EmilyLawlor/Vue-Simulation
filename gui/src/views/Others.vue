@@ -130,7 +130,7 @@ export default {
     try {
       eventSource.addEventListener('ACK', (event) => {
         const data = JSON.parse(event.data);
-        if (data.packetNumber <= this.receiver.length) {
+        if (data.packetNumber >= 0 && data.packetNumber <= this.receiver.length) {
           this.receiver[data.packetNumber] = sendACK(data.packetNumber);
         }
       }, false);

@@ -9,7 +9,7 @@ class Channel():
 
 
     def send(self, destination, packet, source):
-        errors = randrange(50)
+        errors = randrange(9)
         # Both data packets and ACKs can have bit errors, no packets get lost
         if errors < self.errorRate:
             # bit error
