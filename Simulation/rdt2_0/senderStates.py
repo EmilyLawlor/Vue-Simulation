@@ -1,4 +1,4 @@
-from Simulation.rdt2_0.state import State
+from Simulation.Utils.state import State
 
 
 class Waiting(State):

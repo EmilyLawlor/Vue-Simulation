@@ -1,4 +1,4 @@
-from Simulation.GBN.state import State
+from Simulation.Utils.state import State
 
 
 class Waiting(State):

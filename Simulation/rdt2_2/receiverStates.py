@@ -1,12 +1,12 @@
-from Simulation.rdt2_2.state import State
+from Simulation.Utils.state import SequencesState
 
 
-class Waiting(State):
+class Waiting(SequencesState):
     def __init__(self, seqnum):
         super(Waiting, self).__init__('Waiting', seqnum)
 
 
-class Receiving(State):
+class Receiving(SequencesState):
     def __init__(self, seqnum):
         self.seqnum = seqnum
         super(Receiving, self).__init__('Receiving', seqnum)
