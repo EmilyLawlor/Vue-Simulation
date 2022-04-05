@@ -1,6 +1,7 @@
 import simpy.rt
 from flask_sse import sse
 from Simulation.rdt3_0.channel import Channel
+from Simulation.rdt3_0.packet import Packet
 from Simulation.rdt3_0.receiver import Receiver
 from Simulation.rdt3_0.sender import Sender
 from Simulation.Utils.statistics import Statistics
@@ -24,15 +25,19 @@ class Start():
 
     def run(self, runTime, errorRate, lossRate):
         sse.publish({"protocol": "Stop-and-Wait"}, type='start')
+
         stats = Statistics('Stop-and-Wait')
         env = simpy.rt.RealtimeEnvironment()
         sim = SimulationManager(env, errorRate, lossRate, stats)
         env.run(until=runTime)
+
         statement = "END"
         print(statement)
         stats = stats.getStats()
         stats['message'] = statement
         sse.publish(stats, type='terminate')
+        
+        Packet.resetId()
 
 
 if __name__ == '__main__':

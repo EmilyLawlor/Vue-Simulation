@@ -16,6 +16,7 @@ class Timer():
         if self.running is False:
             print("{" + str(self.env.now) + "} | " + "Timer for packet " + str(self.seqnum) + " started")
             self.running = True
+            self.stopped = False
             self.timer = self.env.process(self.timeout())
 
 

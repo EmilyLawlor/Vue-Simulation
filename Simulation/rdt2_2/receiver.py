@@ -3,7 +3,7 @@ from Simulation.rdt2_2.packet import ACK
 from Simulation.rdt2_2.receiverStates import Waiting
 
 DELIVER_TIME = 2    # time to deliver packet to upper layers
-SEND_TIME = 2   # time to send packet back to sender - ACK or NAK
+SEND_TIME = 1   # time to send packet back to sender - ACK or NAK
 
 
 class Receiver():

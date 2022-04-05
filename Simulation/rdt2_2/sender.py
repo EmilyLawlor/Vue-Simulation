@@ -2,7 +2,7 @@ from flask_sse import sse
 from Simulation.rdt2_2.packet import Packet, ResendPacket
 from Simulation.rdt2_2.senderStates import Sending, Waiting
 
-SEND_TIME = 2
+SEND_TIME = 1
 
 
 class Sender():

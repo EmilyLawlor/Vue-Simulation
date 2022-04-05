@@ -1,6 +1,7 @@
 import simpy.rt
 from flask_sse import sse
 from Simulation.GBN.channel import Channel
+from Simulation.GBN.packet import Packet
 from Simulation.GBN.receiver import Receiver
 from Simulation.GBN.sender import Sender
 from Simulation.Utils.statistics import Statistics
@@ -16,19 +17,19 @@ class SimulationManager():
 
 
     def start(self):
-        #if type(self.sender.state) is Waiting:
         while True:
             yield self.env.process(self.sender.generate_packets(self.receiver))
 
 
 class Start():
 
-    def run(self, runTime, errorRate, lossRate, windowSize):
+    def run(self, runTime, errorRate, lossRate, windowSize, sequenceNumbers):
         sse.publish({"protocol": 'Go-Back-N'}, type='start')
-        stats = Statistics('Selective-Repeat')
+        stats = Statistics('Go-Back-N')
         env = simpy.rt.RealtimeEnvironment()
         sim = SimulationManager(env, errorRate, lossRate, windowSize, stats)
         env.run(until=runTime)
+
         statement = "END"
         print(statement)
         stats = stats.getStats()

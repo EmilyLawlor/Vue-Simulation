@@ -15,6 +15,8 @@
     <div class="updates">
       <p>{{ updates }}</p>
     </div>
+    <canvas id="canvas"/>
+    <Legend/>
     <Statistics
       class="stats"
       :generated="this.generated"
@@ -40,6 +42,9 @@
 import Options from '@/components/Options.vue';
 import StartButton from '@/components/StartButton.vue';
 import Statistics from '@/components/Statistics.vue';
+import Legend from '@/components/Legend.vue';
+import { setUpEventListeners } from '@/utils/eventListeners';
+import { generatePackets } from '@/utils/packetManager';
 
 export default {
   name: 'GoBackN',
@@ -47,6 +52,7 @@ export default {
     StartButton,
     Options,
     Statistics,
+    Legend,
   },
   data() {
     return {
@@ -65,6 +71,9 @@ export default {
       errors: 0,
 
       protocol: 'Go-Back-N',
+
+      sender: [],
+      receiver: [],
     };
   },
   methods: {
@@ -83,14 +92,21 @@ export default {
     updateLossRate(value) {
       this.lossRate = value;
     },
+    generatePackets() {
+      [this.sender, this.receiver] = generatePackets();
+    },
   },
   mounted() {
     const eventSource = new EventSource('http://localhost:5000/stream');
+    this.generatePackets();
+    setUpEventListeners(eventSource, true, this.sender, this.receiver);
 
     try {
       eventSource.addEventListener('publish', (event) => {
-        const data = JSON.parse(event.data);
-        this.updates += `${data.message}\n`;
+        if (this.isRunning) {
+          const data = JSON.parse(event.data);
+          this.updates = ` ${data.message}\n ${this.updates}`;
+        }
       }, false);
     } catch (err) {
       console.log(err);
@@ -98,13 +114,15 @@ export default {
 
     try {
       eventSource.addEventListener('terminate', (event) => {
-        const data = JSON.parse(event.data);
-        this.updates += `${data.message}\n`;
-        this.isRunning = false;
-        this.generated = data.generated;
-        this.sent = data.successfullySent;
-        this.lost = data.lost;
-        this.errors = data.errors;
+        if (this.isRunning) {
+          const data = JSON.parse(event.data);
+          this.updates = ` ${data.message}\n ${this.updates}`;
+          this.isRunning = false;
+          this.generated = data.generated;
+          this.sent = data.successfullySent;
+          this.lost = data.lost;
+          this.errors = data.errors;
+        }
       }, false);
     } catch (err) {
       console.log(err);
@@ -114,6 +132,7 @@ export default {
       eventSource.addEventListener('start', (event) => {
         const data = JSON.parse(event.data);
         if (data.protocol === this.protocol) {
+          this.generatePackets();
           this.updates = '';
           this.isRunning = true;
         }

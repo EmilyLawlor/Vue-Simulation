@@ -5,7 +5,7 @@ from flask_sse import sse
 
 
 DELIVER_TIME = 2    # time to deliver packet to upper layers
-SEND_TIME = 2   # time to send packet back to sender - ACK or NAK
+SEND_TIME = 1   # time to send packet back to sender - ACK or NAK
 
 
 class Receiver():
@@ -52,6 +52,7 @@ class Receiver():
 
 
     def send_ACK(self, packet_num, source):
+        sse.publish({"packetNumber": packet_num-1}, type='ACK')
         statement = "{" + str(self.env.now) + "} | " + "Sending ACK for packet num: " + str(packet_num)
         print(statement)
         sse.publish({"message": statement}, type='publish')

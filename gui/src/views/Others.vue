@@ -8,12 +8,12 @@
 
         :runTime="this.runTime"
         :errorRate="this.errorRate"
-
       />
     <div class="updates">
       <p>{{ updates }}</p>
     </div>
     <canvas id="canvas"/>
+    <Legend/>
     <Statistics
       class="stats"
       :generated="this.generated"
@@ -36,10 +36,9 @@
 import Options from '@/components/Options.vue';
 import StartButton from '@/components/StartButton.vue';
 import Statistics from '@/components/Statistics.vue';
-import {
-  generatePackets, sendPacket,
-  sendACK, sendNAK, resend, error,
-} from '@/views/packetManager';
+import Legend from '@/components/Legend.vue';
+import { setUpEventListeners } from '@/utils/eventListeners';
+import { generatePackets } from '@/utils/packetManager';
 
 export default {
   name: 'Others',
@@ -47,6 +46,7 @@ export default {
     StartButton,
     Options,
     Statistics,
+    Legend,
   },
   data() {
     return {
@@ -76,14 +76,23 @@ export default {
       [this.sender, this.receiver] = generatePackets();
     },
   },
+  watch: {
+    $route() {
+      this.generatePackets();
+      this.updates = '';
+    },
+  },
   mounted() {
     const eventSource = new EventSource('http://localhost:5000/stream');
     this.generatePackets();
+    setUpEventListeners(eventSource, true, this.sender, this.receiver);
 
     try {
       eventSource.addEventListener('publish', (event) => {
-        const data = JSON.parse(event.data);
-        this.updates += `${data.message}\n`;
+        if (this.isRunning) {
+          const data = JSON.parse(event.data);
+          this.updates = ` ${data.message}\n ${this.updates}`;
+        }
       }, false);
     } catch (err) {
       console.log(err);
@@ -91,13 +100,15 @@ export default {
 
     try {
       eventSource.addEventListener('terminate', (event) => {
-        const data = JSON.parse(event.data);
-        this.updates += `${data.message}\n`;
-        this.isRunning = false;
-        this.generated = data.generated;
-        this.sent = data.successfullySent;
-        this.lost = data.lost;
-        this.errors = data.errors;
+        if (this.isRunning) {
+          const data = JSON.parse(event.data);
+          this.updates = ` ${data.message}\n ${this.updates}`;
+          this.isRunning = false;
+          this.generated = data.generated;
+          this.sent = data.successfullySent;
+          this.lost = data.lost;
+          this.errors = data.errors;
+        }
       }, false);
     } catch (err) {
       console.log(err);
@@ -110,65 +121,6 @@ export default {
         if (data.protocol === this.$route.params.protocol) {
           this.updates = '';
           this.isRunning = true;
-        }
-      }, false);
-    } catch (err) {
-      console.log(err);
-    }
-
-    try {
-      eventSource.addEventListener('send', (event) => {
-        const data = JSON.parse(event.data);
-        if (data.packetNumber <= this.sender.length) {
-          this.sender[data.packetNumber] = sendPacket(data.packetNumber);
-        }
-      }, false);
-    } catch (err) {
-      console.log(err);
-    }
-
-    try {
-      eventSource.addEventListener('ACK', (event) => {
-        const data = JSON.parse(event.data);
-        if (data.packetNumber >= 0 && data.packetNumber <= this.receiver.length) {
-          this.receiver[data.packetNumber] = sendACK(data.packetNumber);
-        }
-      }, false);
-    } catch (err) {
-      console.log(err);
-    }
-
-    try {
-      eventSource.addEventListener('NAK', (event) => {
-        const data = JSON.parse(event.data);
-        if (data.packetNumber <= this.receiver.length) {
-          this.receiver[data.packetNumber] = sendNAK(data.packetNumber);
-        }
-      }, false);
-    } catch (err) {
-      console.log(err);
-    }
-
-    try {
-      eventSource.addEventListener('error', (event) => {
-        const data = JSON.parse(event.data);
-        if (data.packetNumber <= this.receiver.length) {
-          if (data.source === 'sender') {
-            error(this.sender[data.packetNumber]);
-          } else {
-            error(this.receiver[data.packetNumber]);
-          }
-        }
-      }, false);
-    } catch (err) {
-      console.log(err);
-    }
-
-    try {
-      eventSource.addEventListener('resend', (event) => {
-        const data = JSON.parse(event.data);
-        if (data.packetNumber <= this.receiver.length) {
-          this.sender[data.packetNumber] = resend(data.packetNumber);
         }
       }, false);
     } catch (err) {

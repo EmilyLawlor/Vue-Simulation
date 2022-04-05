@@ -2,7 +2,7 @@ class Packet():
     def __init__(self, seqnum, data):
         self.seqnum = seqnum
         self.data = data
-        self.state = True    
+        self.state = True
 
 
 class ACK(Packet):

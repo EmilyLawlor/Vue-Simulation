@@ -1,6 +1,11 @@
 from random import randrange
 from flask_sse import sse
 from Simulation.rdt2_2.packet import Packet, ResendPacket
+from Simulation.rdt2_2.receiver import SEND_TIME
+
+
+SEND_TIME = 1
+
 
 class Channel():
     def __init__(self, env, errorRate, stats):
@@ -23,5 +28,6 @@ class Channel():
             else:
                 sse.publish({"packetNumber": packet.id, "source": 'receiver'}, type='error')
             packet.state = False
-
+        
+        yield self.env.timeout(SEND_TIME)
         yield self.env.process(destination.handle(packet, source))

@@ -1,33 +1,31 @@
 import Packet from '@/classes/packets';
 
-// eslint-disable-next-line import/prefer-default-export
+/* eslint-disable import/prefer-default-export */
 export function generatePackets() {
   const sender = [];
   for (let x = 4; x < 300; x += 15) {
-    sender.push(new Packet(x, 10));
+    sender.push(new Packet(x, 10, 'waiting'));
   }
 
   const receiver = [];
   for (let x = 4; x < 300; x += 15) {
-    receiver.push(new Packet(x, 130));
+    receiver.push(new Packet(x, 130, 'waiting'));
   }
   return [sender, receiver];
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export function sendPacket(packetNumber) {
   const x = (packetNumber) * 15 + 4;
-  const packet = new Packet(x, 10);
+  const packet = new Packet(x, 10, 'waiting');
   requestAnimationFrame(() => {
     packet.moveDown(130);
   });
   return packet;
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export function sendACK(packetNumber) {
   const x = (packetNumber) * 15 + 4;
-  const packet = new Packet(x, 130);
+  const packet = new Packet(x, 130, 'ACKed');
   packet.setState('ACKed');
   requestAnimationFrame(() => {
     packet.moveUp(10);
@@ -35,10 +33,9 @@ export function sendACK(packetNumber) {
   return packet;
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export function sendNAK(packetNumber) {
   const x = (packetNumber) * 15 + 4;
-  const packet = new Packet(x, 130);
+  const packet = new Packet(x, 130, 'error');
   packet.setState('error');
   requestAnimationFrame(() => {
     packet.moveUp(10);
@@ -46,18 +43,21 @@ export function sendNAK(packetNumber) {
   return packet;
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export function resend(packetNumber) {
   // calculate x coordiate of packet
   const x = (packetNumber) * 15 + 4;
-  const packet = new Packet(x, 10);
+  const packet = new Packet(x, 10, 'waiting');
   requestAnimationFrame(() => {
     packet.moveDown(130);
   });
   return packet;
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export function error(packet) {
   packet.setState('error');
 }
+
+export function lost(packet) {
+  packet.setState('lost');
+}
+/* eslint-disable import/prefer-default-export */

@@ -1,13 +1,12 @@
 import random
 
-import simpy.rt
 from Simulation.SR.packet import Packet, ResendPacket
 from Simulation.SR.senderStates import Sending, Waiting
 from Simulation.Utils.timer import Timer
 from flask_sse import sse
 
 
-SEND_TIME = 2
+SEND_TIME = 1
 TIMEOUT_INTERVAL = 5
 
 
@@ -46,7 +45,7 @@ class Sender():
             random_interaval = int(round(random.expovariate(1.0/mean_send_time),0))
             statement = "{" + str(self.env.now) + "} | " + "New packet ready to send"
             print(statement)
-            sse.publish({"message": statement}, type='publish')
+            #sse.publish({"message": statement}, type='publish')
             yield self.env.timeout(random_interaval)
 
 
@@ -59,6 +58,7 @@ class Sender():
 
     def rdt_send(self, destination, packet):
         if self.nextSeqNum < self.base + self.windowSize:
+            sse.publish({"packetNumber": packet.seqnum-1}, type='send')
             statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(packet.seqnum) + " started sending"
             print(statement)
             sse.publish({"message": statement}, type='publish')
@@ -120,6 +120,7 @@ class Sender():
     def rdt_resend(self, destination, seqnum):
         packet = ResendPacket(seqnum)
         statement = "{" + str(self.env.now) + "} | " + "Resending packet num: " + str(seqnum)
+        sse.publish({"packetNumber": seqnum-1}, type='resend')
         print(statement)
         sse.publish({"message": statement}, type='publish')
         if seqnum in self.timer:

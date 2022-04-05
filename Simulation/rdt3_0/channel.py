@@ -1,6 +1,10 @@
 from random import randrange
-from Simulation.rdt3_0.packet import ACK
+from Simulation.rdt3_0.packet import Packet, ResendPacket
 from flask_sse import sse
+
+
+SEND_TIME = 1
+
 
 class Channel():
     def __init__(self, env, errorRate, lossRate, stats):
@@ -20,6 +24,10 @@ class Channel():
             print(statement)
             sse.publish({"message": statement}, type='publish')
             packet.state = False
+            if type(packet) is Packet or type(packet) is ResendPacket:
+                sse.publish({"packetNumber": packet.id, "source": 'sender'}, type='error')
+            else:
+                sse.publish({"packetNumber": packet.id, "source": 'receiver'}, type='error')
 
         # generate new random number for losses, packet loss and bit errors are independent events
         errors = randrange(9)
@@ -29,5 +37,11 @@ class Channel():
             statement = "{" + str(self.env.now) + "} | " + packet.__class__.__name__ + " number " + str(packet.seqnum) + " lost in channel"
             print(statement)
             sse.publish({"message": statement}, type='publish')
+            if type(packet) is Packet or type(packet) is ResendPacket:
+                sse.publish({"packetNumber": packet.id, "source": 'sender'}, type='lost')
+            else:
+                sse.publish({"packetNumber": packet.id, "source": 'receiver'}, type='lost')
             return
+
+        yield self.env.timeout(SEND_TIME)
         yield self.env.process(destination.handle(packet, source))
