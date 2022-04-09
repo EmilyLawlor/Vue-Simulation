@@ -18,7 +18,7 @@ app.config.from_object(__name__)
 app.config["REDIS_URL"] = "redis://localhost:1111"
 app.register_blueprint(sse, url_prefix='/stream')
 
-CORS(app, resources={r'/*': {'origins': '*'}})
+CORS(app)
 
 
 @app.route('/stop-and-wait', methods=['GET'])

@@ -1,5 +1,5 @@
 import random
-from Simulation.GBN.packet import Packet, ResendPacket
+from Simulation.Utils.packet import Packet
 from Simulation.GBN.senderStates import Sending, Waiting
 from Simulation.Utils.timer import Timer
 from flask_sse import sse
@@ -33,7 +33,7 @@ class Sender():
         # continuously create packets, generated after random interval
         while True:
             self.stats.incrementPacketsGenerated()
-            packet=Packet(self.nextSeqNum, 'data')
+            packet=Packet(self.nextSeqNum)
             self.env.process(self.rdt_send(destination, packet))
 
             # average time between sending packets
@@ -102,7 +102,6 @@ class Sender():
             # if this ACKs the last unACKed packet in channel, stop timer and wait
             if self.base == self.nextSeqNum:
                 self.timer.stop()
-            # if error occurs in first packet sent it will send an ACK for packet 0, if this happens don't want to start timer for next packet as it would delay the re-sending process 
             # if there are still more unACKed packets in channel, stop current timer and create new timer instance for next oldest unACKed packet in channel
             # don't stop timer and create new timer instance for the same packet
             elif self.base != self.timer.seqnum:
@@ -117,7 +116,7 @@ class Sender():
         self.timer.start()
 
         for seqnum in range(self.base, self.nextSeqNum):
-            packet = ResendPacket(seqnum)
+            packet = Packet(seqnum)
             sse.publish({"packetNumber": seqnum-1}, type='resend')
             statement = "{" + str(self.env.now) + "} | " + "Resending packet num: " + str(seqnum)
             print(statement)

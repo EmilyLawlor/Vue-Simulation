@@ -1,6 +1,6 @@
 import random
 
-from Simulation.SR.packet import Packet, ResendPacket
+from Simulation.Utils.packet import Packet
 from Simulation.SR.senderStates import Sending, Waiting
 from Simulation.Utils.timer import Timer
 from flask_sse import sse
@@ -35,7 +35,7 @@ class Sender():
         # continuously create packets, generated after random interval
         while True:
             self.stats.incrementPacketsGenerated()
-            packet=Packet(self.nextSeqNum, 'data')
+            packet=Packet(self.nextSeqNum)
 
             self.env.process(self.rdt_send(destination, packet))
 
@@ -118,7 +118,7 @@ class Sender():
 
 
     def rdt_resend(self, destination, seqnum):
-        packet = ResendPacket(seqnum)
+        packet = Packet(seqnum)
         statement = "{" + str(self.env.now) + "} | " + "Resending packet num: " + str(seqnum)
         sse.publish({"packetNumber": seqnum-1}, type='resend')
         print(statement)

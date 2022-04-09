@@ -13,8 +13,8 @@ export default {
       return [
         { Statistics: 'Packets Generated', Value: this.generated },
         { Statistics: 'Packets Successfully Sent', Value: this.sent },
-        { Statistics: 'Packets Lost', Value: this.lost },
-        { Statistics: 'Bit Errors Occurred in Packets', Value: this.errors },
+        { Statistics: 'Packets/ACKs Lost', Value: this.lost },
+        { Statistics: 'Bit Errors Occurred in Packets/ACKs', Value: this.errors },
       ];
     },
   },

@@ -1,7 +1,6 @@
 import simpy.rt
 from flask_sse import sse
 from Simulation.GBN.channel import Channel
-from Simulation.GBN.packet import Packet
 from Simulation.GBN.receiver import Receiver
 from Simulation.GBN.sender import Sender
 from Simulation.Utils.statistics import Statistics
@@ -23,9 +22,10 @@ class SimulationManager():
 
 class Start():
 
-    def run(self, runTime, errorRate, lossRate, windowSize, sequenceNumbers):
+    def run(self, runTime, errorRate, lossRate, windowSize):
         sse.publish({"protocol": 'Go-Back-N'}, type='start')
-        stats = Statistics('Go-Back-N')
+
+        stats = Statistics()
         env = simpy.rt.RealtimeEnvironment()
         sim = SimulationManager(env, errorRate, lossRate, windowSize, stats)
         env.run(until=runTime)

@@ -8,9 +8,9 @@ class Packet():
         Packet.id += 1
 
 
-    def setSeqnum(self, new):
-        if new == 0 or new == 1:
-            self.seqnum = new
+    def setSeqnum(self, newSeqnum):
+        if newSeqnum == 0 or newSeqnum == 1:
+            self.seqnum = newSeqnum
 
     def resetId():
         Packet.id = 0    

@@ -1,5 +1,5 @@
 from flask_sse import sse
-from Simulation.SR.packet import ACK
+from Simulation.Utils.packet import ACK
 from Simulation.SR.receiverStates import Waiting
 
 DELIVER_TIME = 0    # time to deliver packet to upper layers
@@ -84,6 +84,5 @@ class Receiver():
 
     def buffer_data(self, packet):
         self.buffer.append(packet.seqnum)
-        self.buffer.sort()
         yield self.env.timeout(0)
 

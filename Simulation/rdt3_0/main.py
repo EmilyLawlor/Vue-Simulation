@@ -26,7 +26,7 @@ class Start():
     def run(self, runTime, errorRate, lossRate):
         sse.publish({"protocol": "Stop-and-Wait"}, type='start')
 
-        stats = Statistics('Stop-and-Wait')
+        stats = Statistics()
         env = simpy.rt.RealtimeEnvironment()
         sim = SimulationManager(env, errorRate, lossRate, stats)
         env.run(until=runTime)

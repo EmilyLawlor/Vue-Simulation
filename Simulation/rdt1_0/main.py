@@ -30,7 +30,7 @@ class Start():
 
     def run(self, runTime):
         sse.publish({"protocol": "rdt1.0"}, type='start')
-        stats = Statistics('rdt1.0')
+        stats = Statistics()
         env = simpy.rt.RealtimeEnvironment()
         sim = SimulationManager(env, stats)
         env.run(until=runTime)

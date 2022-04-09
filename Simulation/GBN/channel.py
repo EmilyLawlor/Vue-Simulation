@@ -1,6 +1,6 @@
 from random import randrange
 from flask_sse import sse
-from Simulation.GBN.packet import Packet, ResendPacket
+from Simulation.Utils.packet import Packet
 
 
 SEND_TIME = 1
@@ -24,10 +24,10 @@ class Channel():
             print(statement)
             sse.publish({"message": statement}, type='publish')
             packet.state = False
-            if type(packet) is Packet or type(packet) is ResendPacket:
-                sse.publish({"packetNumber": packet.seqnum-1, "source": 'sender'}, type='error')
+            if type(packet) is Packet:
+                sse.publish({"packetNumber": packet.id, "source": 'sender'}, type='error')
             else:
-                sse.publish({"packetNumber": packet.seqnum-1, "source": 'receiver'}, type='error')
+                sse.publish({"packetNumber": packet.id, "source": 'receiver'}, type='error')
 
         errors = randrange(9)
         if errors < self.lossRate:
@@ -36,10 +36,10 @@ class Channel():
             statement = "{" + str(self.env.now) + "} | " + packet.__class__.__name__ + " number " + str(packet.seqnum) + " lost in channel"
             print(statement)
             sse.publish({"message": statement}, type='publish')
-            if type(packet) is Packet or type(packet) is ResendPacket:
-                sse.publish({"packetNumber": packet.seqnum-1, "source": 'sender'}, type='lost')
+            if type(packet) is Packet:
+                sse.publish({"packetNumber": packet.id, "source": 'sender'}, type='lost')
             else:
-                sse.publish({"packetNumber": packet.seqnum-1, "source": 'receiver'}, type='lost')
+                sse.publish({"packetNumber": packet.id, "source": 'receiver'}, type='lost')
             return
         
         yield self.env.timeout(SEND_TIME)

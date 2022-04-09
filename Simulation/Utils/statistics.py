@@ -4,8 +4,7 @@ from Simulation.Utils.counter import Counter
 
 
 class Statistics():
-    def __init__(self, protocol):
-        self.protocol = protocol
+    def __init__(self):
         self.packetsGenerated = Counter()
         self.packetsSuccessfullySent = Counter()
         self.packetsLost = Counter()

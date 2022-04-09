@@ -26,7 +26,7 @@ class Start():
 
     def run(self, runTime, errorRate, lossRate, windowSize):
         sse.publish({"protocol": "Selective-Repeat"}, type='start')
-        stats = Statistics('Selective-Repeat')
+        stats = Statistics()
         env = simpy.rt.RealtimeEnvironment()
         sim = SimulationManager(env, errorRate, lossRate, windowSize, stats)
         env.run(until=runTime)

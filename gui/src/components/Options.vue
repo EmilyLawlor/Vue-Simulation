@@ -13,7 +13,7 @@
             />
         </div>
 
-        <div v-if="showExtraOptions">
+        <div v-if="showExtraOptions" && false>
             Sequence Numbers: {{ this.sequenceNumbersSlider }}
             <vue-slider
                 v-model="sequenceNumbersSlider"
@@ -45,7 +45,7 @@
         </div>
 
         <div v-if="showExtraOptions">
-            Packet Loss Rate: {{ this.lossRateSlider }}%
+            Loss Rate: {{ this.lossRateSlider }}%
             <vue-slider
                 v-model="lossRateSlider"
                 :min=0
