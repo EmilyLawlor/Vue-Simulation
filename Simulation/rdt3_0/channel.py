@@ -1,5 +1,5 @@
 from random import randrange
-from Simulation.rdt3_0.packet import Packet, ResendPacket
+from Simulation.Utils.IDpacket import IDPacket, IDResendPacket
 from flask_sse import sse
 
 
@@ -24,7 +24,7 @@ class Channel():
             print(statement)
             sse.publish({"message": statement}, type='publish')
             packet.state = False
-            if type(packet) is Packet or type(packet) is ResendPacket:
+            if type(packet) is IDPacket or type(packet) is IDResendPacket:
                 sse.publish({"packetNumber": packet.id, "source": 'sender'}, type='error')
             else:
                 sse.publish({"packetNumber": packet.id, "source": 'receiver'}, type='error')
@@ -37,7 +37,7 @@ class Channel():
             statement = "{" + str(self.env.now) + "} | " + packet.__class__.__name__ + " number " + str(packet.seqnum) + " lost in channel"
             print(statement)
             sse.publish({"message": statement}, type='publish')
-            if type(packet) is Packet or type(packet) is ResendPacket:
+            if type(packet) is IDPacket or type(packet) is IDResendPacket:
                 sse.publish({"packetNumber": packet.id, "source": 'sender'}, type='lost')
             else:
                 sse.publish({"packetNumber": packet.id, "source": 'receiver'}, type='lost')

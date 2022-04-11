@@ -1,6 +1,10 @@
 from random import randrange
 from flask_sse import sse
-from Simulation.rdt2_1.packet import DataPacket, ResendPacket
+from Simulation.Utils.IDpacket import IDPacket, IDResendPacket
+
+
+SEND_TIME = 1
+
 
 class Channel():
     def __init__(self,env, errorRate, stats):
@@ -18,9 +22,11 @@ class Channel():
             statement = "{" + str(self.env.now) + "} | " + "Bit errors occured in " + packet.__class__.__name__ + " number " + str(packet.seqnum)
             print(statement)
             sse.publish({"message": statement}, type='publish')
-            if type(packet) is DataPacket or type(packet) is ResendPacket:
+            if type(packet) is IDPacket or type(packet) is IDResendPacket:
                 sse.publish({"packetNumber": packet.id, "source": 'sender'}, type='error')
             else:
                 sse.publish({"packetNumber": packet.id, "source": 'receiver'}, type='error')
             packet.state = False
+
+        yield self.env.timeout(SEND_TIME)
         yield self.env.process(destination.handle(packet, source))

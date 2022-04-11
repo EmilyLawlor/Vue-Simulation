@@ -1,7 +1,7 @@
 import simpy.rt
 from flask_sse import sse
 from Simulation.rdt2_1.channel import Channel
-from Simulation.rdt2_1.packet import DataPacket
+from Simulation.Utils.IDpacket import IDPacket
 from Simulation.rdt2_1.receiver import Receiver
 from Simulation.rdt2_1.sender import Sender
 from Simulation.Utils.statistics import Statistics
@@ -18,7 +18,6 @@ class SimulationManager():
 
 
     def start(self):
-        #if type(self.sender.state) is Waiting:
         while True:
             self.stats.incrementPacketsGenerated()
             statement = "{" + str(self.env.now) + "} | " + "New packet ready to send"
@@ -41,7 +40,7 @@ class Start():
         stats = stats.getStats()
         stats['message'] = statement
         sse.publish(stats, type='terminate')
-        DataPacket.resetId()
+        IDPacket.resetId()
 
 
 if __name__ == '__main__':

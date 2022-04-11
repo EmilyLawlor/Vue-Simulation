@@ -1,5 +1,5 @@
 from flask_sse import sse
-from Simulation.rdt1_0.packet import ACK
+from Simulation.Utils.packet import ACK
 from Simulation.rdt1_0.receiverStates import Receiving, Waiting
 
 DELIVER_TIME = 2    # time to deliver packet to upper layers

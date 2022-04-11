@@ -1,9 +1,9 @@
 from flask_sse import sse
-from Simulation.rdt2_0.packet import ACK, NAK
+from Simulation.Utils.packet import ACK, NAK
 from Simulation.rdt2_0.receiverStates import Receiving, Waiting
 
 DELIVER_TIME = 2    # time to deliver packet to upper layers
-SEND_TIME = 2   # time to send packet back to sender - ACK or NAK
+SEND_TIME = 1   # time to send packet back to sender - ACK or NAK
 
 
 class Receiver():
@@ -50,6 +50,7 @@ class Receiver():
 
 
     def send_ACK(self, packet_num, source):
+        sse.publish({"packetNumber": packet_num-1}, type='ACK')
         statement = "{" + str(self.env.now) + "} | " + "Sending ACK for packet num: " + str(packet_num)
         print(statement)
         sse.publish({"message": statement}, type='publish')
@@ -60,10 +61,10 @@ class Receiver():
 
 
     def send_NACK(self, packet_num, source):
+        sse.publish({"packetNumber": packet_num-1}, type='NAK')
         statement = "{" + str(self.env.now) + "} | " + "Sending NAK for packet num: " + str(packet_num)
         print(statement)
         sse.publish({"message": statement}, type='publish')
-        nack = NAK(packet_num)
         yield self.env.timeout(SEND_TIME)
-        self.env.process(self.channel.send(source, nack, self))
+        self.env.process(self.channel.send(source, NAK(packet_num), self))
         self.setState('waiting')

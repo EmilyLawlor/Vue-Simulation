@@ -1,7 +1,7 @@
 import simpy.rt
 from flask_sse import sse
 from Simulation.rdt3_0.channel import Channel
-from Simulation.rdt3_0.packet import Packet
+from Simulation.Utils.IDpacket import IDPacket
 from Simulation.rdt3_0.receiver import Receiver
 from Simulation.rdt3_0.sender import Sender
 from Simulation.Utils.statistics import Statistics
@@ -37,7 +37,7 @@ class Start():
         stats['message'] = statement
         sse.publish(stats, type='terminate')
         
-        Packet.resetId()
+        IDPacket.resetId()
 
 
 if __name__ == '__main__':

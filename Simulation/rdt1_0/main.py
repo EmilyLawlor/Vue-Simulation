@@ -3,7 +3,6 @@ from flask_sse import sse
 from Simulation.rdt1_0.channel import Channel
 from Simulation.rdt1_0.receiver import Receiver
 from Simulation.rdt1_0.sender import Sender
-from Simulation.rdt1_0.packet import Packet
 from Simulation.Utils.statistics import Statistics
 
 
@@ -35,7 +34,6 @@ class Start():
         sim = SimulationManager(env, stats)
         env.run(until=runTime)
         statement = "END"
-        Packet().resetSeqnum()
         print(statement)
         stats = stats.getStats()
         stats['message'] = statement

@@ -1,4 +1,4 @@
-from Simulation.rdt3_0.packet import Packet, ResendPacket
+from Simulation.Utils.IDpacket import IDPacket, IDResendPacket
 from Simulation.rdt3_0.senderStates import Waiting, Sending
 from Simulation.Utils.timer import Timer
 import random
@@ -32,12 +32,12 @@ class Sender():
             self.stats.incrementPacketsGenerated()
             self.env.process(self.rdt_send(destination))
             # average time between sending packets
-            mean_send_time = 3
+            mean_generation_time = 3
             # randomly sample the time
-            random_interaval = int(round(random.expovariate(1.0/mean_send_time),0))
+            random_interaval = abs(int(round(random.normalvariate(mean_generation_time,1))))
             statement = "{" + str(self.env.now) + "} | " + "New packet ready to send"
             print(statement)
-            #sse.publish({"message": statement}, type='publish')
+            sse.publish({"message": statement}, type='publish')
             yield self.env.timeout(random_interaval)
 
 
@@ -47,7 +47,7 @@ class Sender():
                 self.setState('sending-0')
             else:
                 self.setState('sending-1')
-            packet=Packet('data')
+            packet=IDPacket()
             packet.setSeqnum(self.currentState.seqnum)
             sse.publish({"packetNumber": packet.id}, type='send')
             statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(packet.seqnum) + " started sending"
@@ -64,7 +64,7 @@ class Sender():
         else:
             statement = "{" + str(self.env.now) + "} | " + "Sender busy"
             print(statement)
-            #sse.publish({"message": statement}, type='publish')
+            sse.publish({"message": statement}, type='publish')
 
 
     def handle(self, packet, source):
@@ -103,7 +103,7 @@ class Sender():
         # restart timer
         self.timer.start()
         yield self.env.timeout(SEND_TIME)
-        self.env.process(self.channel.send(destination, ResendPacket(packet.seqnum, packet.id), self))
+        self.env.process(self.channel.send(destination, IDResendPacket(packet.seqnum, packet.id), self))
 
 
     def timeout(self, destination, packet):

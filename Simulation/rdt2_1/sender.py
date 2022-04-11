@@ -1,9 +1,9 @@
 from flask_sse import sse
-from Simulation.rdt2_1.packet import ACK, NAK, DataPacket, ResendPacket
-from Simulation.rdt2_1.senderStates import (SendingFirst, SendingSecond,
+from Simulation.Utils.IDpacket import IDACK, IDNAK, IDPacket, IDResendPacket
+from Simulation.rdt2_1.senderStates import (Waiting, SendingFirst, SendingSecond,
                                             WaitingFirst, WaitingSecond)
 
-SEND_TIME = 2
+SEND_TIME = 1
 
 
 class Sender():
@@ -24,19 +24,13 @@ class Sender():
 
 
     def rdt_send(self, destination):
-        if type(self.currentState) == type(self.states['waiting0']):
-            self.setState('sending0')
-            packet=DataPacket(0, 'data')
-            sse.publish({"packetNumber": packet.id}, type='send')
-            statement = "{" + str(self.env.now) + "} | " + "Sending packet num " + str(packet.seqnum)
-            print(statement)
-            sse.publish({"message": statement}, type='publish')
-            yield self.env.timeout(SEND_TIME)
-            self.env.process(self.channel.send(destination, packet, self))
-
-        elif type(self.currentState) == type(self.states['waiting1']):
-            self.setState('sending1')
-            packet=DataPacket(1, 'data')
+        if issubclass(type(self.currentState), Waiting):
+            if self.currentState.seqnum == 0:
+                self.setState('sending0')
+            else:
+                self.setState('sending1')
+            packet=IDPacket()
+            packet.setSeqnum(self.currentState.seqnum)
             sse.publish({"packetNumber": packet.id}, type='send')
             statement = "{" + str(self.env.now) + "} | " + "Sending packet num " + str(packet.seqnum)
             print(statement)
@@ -53,7 +47,7 @@ class Sender():
     def handle(self, packet, source):
         # Decides what to do with ACKs and NAKs received
         # if the packet is an ACK and it is not corrupted
-        if type(packet) is ACK and packet.state is True:
+        if type(packet) is IDACK and packet.state is True:
             self.stats.incrementPacketsSuccessfullySent()
             statement = "{" + str(self.env.now) + "} | " + "ACK received for packet num: " + str(packet.seqnum) + " by sender"
             print(statement)
@@ -70,7 +64,7 @@ class Sender():
             sse.publish({"message": statement}, type='publish')
             yield self.env.process(self.rdt_resend(source, packet))
         # packet was received incorrectly at receiver, send again
-        elif type(packet) is NAK:
+        elif type(packet) is IDNAK:
             statement = "{" + str(self.env.now) + "} | " + "Bit errors in packet sent: " + str(packet.seqnum)
             print(statement)
             sse.publish({"message": statement}, type='publish')
@@ -78,7 +72,7 @@ class Sender():
 
 
     def rdt_resend(self, destination, packet):
-        packet = ResendPacket(packet.seqnum, packet.id)
+        packet = IDResendPacket(packet.seqnum, packet.id)
         sse.publish({"packetNumber": packet.id}, type='resend')
         statement = "{" + str(self.env.now) + "} | " + "Resending packet num: " + str(packet.seqnum)
         print(statement)

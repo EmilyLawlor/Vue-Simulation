@@ -1,11 +1,10 @@
-class Packet():
+class IDPacket():
     id = 0
-    def __init__(self, data):
+    def __init__(self):
         self.seqnum = 0
-        self.data = data
         self.state = True   
-        self.id = Packet.id
-        Packet.id += 1
+        self.id = IDPacket.id
+        IDPacket.id += 1
 
 
     def setSeqnum(self, newSeqnum):
@@ -13,17 +12,24 @@ class Packet():
             self.seqnum = newSeqnum
 
     def resetId():
-        Packet.id = 0    
+        IDPacket.id = 0    
 
 
-class ACK(Packet):
+class IDACK(IDPacket):
     def __init__(self, seqnum, id):
         self.seqnum = seqnum
         self.state = True 
         self.id = id
 
 
-class ResendPacket(Packet):
+class IDNAK(IDPacket):
+    def __init__(self, seqnum, id):
+        self.id = id
+        self.seqnum = seqnum
+        self.state = True
+
+
+class IDResendPacket(IDPacket):
     def __init__(self, seqnum, id):
         self.seqnum = seqnum
         self.state = True  

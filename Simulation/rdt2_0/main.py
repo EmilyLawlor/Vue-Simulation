@@ -3,7 +3,6 @@ from flask_sse import sse
 from Simulation.rdt2_0.channel import Channel
 from Simulation.rdt2_0.receiver import Receiver
 from Simulation.rdt2_0.sender import Sender
-from Simulation.rdt2_0.packet import Packet
 from Simulation.Utils.statistics import Statistics
 
 
@@ -18,7 +17,6 @@ class SimulationManager():
 
 
     def start(self):
-        #if type(self.sender.state) is Waiting:
         while True:
             self.stats.incrementPacketsGenerated()
             statement = "{" + str(self.env.now) + "} | " + "New packet ready to send"
@@ -37,7 +35,6 @@ class Start():
         sim = SimulationManager(env, errorRate, stats)
         env.run(until=runTime)
         statement = "END"
-        Packet().resetSeqnum()
         print(statement)
         stats = stats.getStats()
         stats['message'] = statement
