@@ -1,6 +1,6 @@
 import simpy.rt
 from flask_sse import sse
-from Simulation.rdt1_0.channel import Channel
+from Simulation.Utils.channel import Channel
 from Simulation.rdt1_0.receiver import Receiver
 from Simulation.rdt1_0.sender import Sender
 from Simulation.Utils.statistics import Statistics

@@ -1,15 +1,15 @@
 import simpy.rt
 from flask_sse import sse
-from Simulation.GBN.channel import Channel
 from Simulation.GBN.receiver import Receiver
 from Simulation.GBN.sender import Sender
+from Simulation.Utils.channel import ErrorAndLossChannel
 from Simulation.Utils.statistics import Statistics
 
 
 class SimulationManager():
     def __init__(self, env, errorRate, lossRate, windowSize, stats):
         self.env = env
-        self.channel = Channel(self.env, errorRate, lossRate, stats)
+        self.channel = ErrorAndLossChannel(self.env, errorRate, lossRate, stats)
         self.receiver = Receiver(self.env, self.channel, windowSize)
         self.sender = Sender(self.env, self.channel, windowSize, stats)
         self.action = self.env.process(self.start())

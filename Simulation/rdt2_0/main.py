@@ -1,6 +1,6 @@
 import simpy
 from flask_sse import sse
-from Simulation.rdt2_0.channel import Channel
+from Simulation.Utils.channel import ErrorChannel
 from Simulation.rdt2_0.receiver import Receiver
 from Simulation.rdt2_0.sender import Sender
 from Simulation.Utils.statistics import Statistics
@@ -9,7 +9,7 @@ from Simulation.Utils.statistics import Statistics
 class SimulationManager():
     def __init__(self, env, errorRate, stats):
         self.env = env
-        self.channel = Channel(self.env, errorRate, stats)
+        self.channel = ErrorChannel(self.env, errorRate, stats)
         self.receiver = Receiver(self.env, self.channel)
         self.sender = Sender(self.env, self.channel, stats)
         self.action = self.env.process(self.start())
