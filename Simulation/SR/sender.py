@@ -1,20 +1,14 @@
 import random
 
-from Simulation.Utils.packet import Packet
-from Simulation.SR.senderStates import Sending, Waiting
-from Simulation.Utils.timer import Timer
 from flask_sse import sse
-
-
-SEND_TIME = 1
-TIMEOUT_INTERVAL = 5
+from Simulation.Utils.constants import SEND_TIME, TIMEOUT_INTERVAL
+from Simulation.Utils.packet import Packet
+from Simulation.Utils.timer import Timer
 
 
 class Sender():
     def __init__(self, env, channel, windowSize, stats):
         self.env = env
-        self.states = {'waiting':Waiting(), 'sending':Sending()}
-        self.currentState = self.states['waiting']
         self.channel = channel
         self.windowSize = windowSize
         self.timer = {}
@@ -22,13 +16,6 @@ class Sender():
         self.base = 1
         self.unACKed = []
         self.stats = stats
-
-
-    def setState(self, state):
-        self.currentState = self.states[state]
-        statement = "{" + str(self.env.now) + "} | " + "Sender now: " + str(self.currentState)
-        print(statement)
-        sse.publish({"message": statement}, type='publish')
 
 
     def generate_packets(self, destination):

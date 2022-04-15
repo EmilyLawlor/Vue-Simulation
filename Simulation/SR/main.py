@@ -17,14 +17,11 @@ class SimulationManager():
 
 
     def start(self):
-        #if type(self.sender.state) is Waiting:
         while True:
             yield self.env.process(self.sender.generate_packets(self.receiver))
 
 
-class Start():
-
-    def run(self, runTime, errorRate, lossRate, windowSize):
+def run(runTime, errorRate, lossRate, windowSize):
         sse.publish({"protocol": "Selective-Repeat"}, type='start')
         stats = Statistics()
         env = simpy.rt.RealtimeEnvironment()

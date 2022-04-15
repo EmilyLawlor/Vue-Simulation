@@ -3,7 +3,7 @@ from flask_sse import sse
 from Simulation.rdt3_0.receiver import Receiver
 from Simulation.rdt3_0.sender import Sender
 from Simulation.Utils.channel import ErrorAndLossChannel
-from Simulation.Utils.IDpacket import IDPacket
+from Simulation.Utils.packetID import PacketID
 from Simulation.Utils.statistics import Statistics
 
 
@@ -21,9 +21,7 @@ class SimulationManager():
             yield self.env.process(self.sender.generate_packets(self.receiver))
 
 
-class Start():
-
-    def run(self, runTime, errorRate, lossRate):
+def run(runTime, errorRate, lossRate):
         sse.publish({"protocol": "Stop-and-Wait"}, type='start')
 
         stats = Statistics()
@@ -37,7 +35,7 @@ class Start():
         stats['message'] = statement
         sse.publish(stats, type='terminate')
         
-        IDPacket.resetId()
+        PacketID.resetId()
 
 
 if __name__ == '__main__':

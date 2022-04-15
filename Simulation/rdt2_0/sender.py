@@ -1,8 +1,7 @@
 from flask_sse import sse
-from Simulation.Utils.packet import ACK, NAK, Packet, ResendPacket
 from Simulation.rdt2_0.senderStates import Sending, Waiting
-
-SEND_TIME = 1
+from Simulation.Utils.constants import SEND_TIME
+from Simulation.Utils.packet import ACK, NAK, Packet
 
 
 class Sender():
@@ -61,7 +60,7 @@ class Sender():
 
 
     def rdt_resend(self, destination, seqnum):
-        packet = ResendPacket(seqnum)
+        packet = Packet(seqnum)
         sse.publish({"packetNumber": seqnum-1}, type='resend')
         statement = "{" + str(self.env.now) + "} | " + "Resending packet num: " + str(seqnum)
         print(statement)

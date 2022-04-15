@@ -3,7 +3,7 @@ from flask_sse import sse
 from Simulation.rdt2_2.receiver import Receiver
 from Simulation.rdt2_2.sender import Sender
 from Simulation.Utils.channel import ErrorChannel
-from Simulation.Utils.IDpacket import IDPacket
+from Simulation.Utils.packetID import PacketID
 from Simulation.Utils.statistics import Statistics
 
 
@@ -28,9 +28,7 @@ class SimulationManager():
             yield self.env.timeout(3)   # new packet generated to send every 3 units time
 
 
-class Start():
-
-    def run(self, runTime, errorRate):
+def run(runTime, errorRate):
         sse.publish({"protocol": "rdt2.2"}, type='start')
         stats = Statistics()
         env = simpy.rt.RealtimeEnvironment()
@@ -41,7 +39,7 @@ class Start():
         stats = stats.getStats()
         stats['message'] = statement
         sse.publish(stats, type='terminate')
-        IDPacket.resetId()
+        PacketID.resetId()
         
 
 if __name__ == '__main__':

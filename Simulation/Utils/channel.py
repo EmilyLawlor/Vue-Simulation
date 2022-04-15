@@ -1,10 +1,9 @@
 from random import randrange
 
 from flask_sse import sse
-from Simulation.Utils.packet import Packet, ResendPacket, ACK, NAK
-from Simulation.Utils.IDpacket import IDPacket, IDResendPacket
-
-SEND_TIME = 1
+from Simulation.Utils.packet import Packet, ACK, NAK
+from Simulation.Utils.packetID import PacketID, ResendPacketID
+from Simulation.Utils.constants import SEND_TIME
 
 
 class Channel():
@@ -13,6 +12,7 @@ class Channel():
 
 
     def send(self, destination, packet, source):
+        yield self.env.timeout(SEND_TIME)
         yield self.env.process(destination.handle(packet, source))
 
 
@@ -31,13 +31,11 @@ class ErrorChannel(Channel):
             statement = "{" + str(self.env.now) + "} | " + "Bit errors occured in " + packet.__class__.__name__ + " number " + str(packet.seqnum)
             print(statement)
             sse.publish({"message": statement}, type='publish')
-            if type(packet) is Packet or type(packet) is ResendPacket:
-                print('packet')
+            if type(packet) is Packet:
                 sse.publish({"packetNumber": packet.seqnum-1, "source": 'sender'}, type='error')
             elif type(packet) is ACK or type(packet) is NAK:
-                print('ack')
                 sse.publish({"packetNumber": packet.seqnum-1, "source": 'receiver'}, type='error')
-            elif type(packet) is IDPacket or type(packet) is IDResendPacket:
+            elif type(packet) is PacketID or type(packet) is ResendPacketID:
                 sse.publish({"packetNumber": packet.id, "source": 'sender'}, type='error')
             else:
                 sse.publish({"packetNumber": packet.id, "source": 'receiver'}, type='error')
@@ -65,11 +63,11 @@ class ErrorAndLossChannel(Channel):
             print(statement)
             sse.publish({"message": statement}, type='publish')
             packet.state = False
-            if type(packet) is Packet or type(packet) is ResendPacket:
+            if type(packet) is Packet:
                 sse.publish({"packetNumber": packet.seqnum-1, "source": 'sender'}, type='error')
             elif type(packet) is ACK or type(packet) is NAK:
                 sse.publish({"packetNumber": packet.seqnum-1, "source": 'receiver'}, type='error')
-            elif type(packet) is IDPacket or type(packet) is IDResendPacket:
+            elif type(packet) is PacketID or type(packet) is ResendPacketID:
                 sse.publish({"packetNumber": packet.id, "source": 'sender'}, type='error')
             else:
                 sse.publish({"packetNumber": packet.id, "source": 'receiver'}, type='error')
@@ -81,11 +79,11 @@ class ErrorAndLossChannel(Channel):
             statement = "{" + str(self.env.now) + "} | " + packet.__class__.__name__ + " number " + str(packet.seqnum) + " lost in channel"
             print(statement)
             sse.publish({"message": statement}, type='publish')
-            if type(packet) is Packet or type(packet) is ResendPacket:
+            if type(packet) is Packet:
                 sse.publish({"packetNumber": packet.seqnum-1, "source": 'sender'}, type='lost')
             elif type(packet) is ACK or type(packet) is NAK:
                 sse.publish({"packetNumber": packet.seqnum-1, "source": 'receiver'}, type='lost')
-            elif type(packet) is IDPacket or type(packet) is IDResendPacket:
+            elif type(packet) is PacketID or type(packet) is ResendPacketID:
                 sse.publish({"packetNumber": packet.id, "source": 'sender'}, type='lost')
             else:
                 sse.publish({"packetNumber": packet.id, "source": 'receiver'}, type='lost')

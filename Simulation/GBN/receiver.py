@@ -1,10 +1,6 @@
-from Simulation.GBN.receiverStates import Waiting
-from Simulation.Utils.packet import ACK
 from flask_sse import sse
-
-
-DELIVER_TIME = 2    # time to deliver packet to upper layers
-SEND_TIME = 1   # time to send packet back to sender - ACK or NAK
+from Simulation.Utils.constants import DELIVER_TIME, SEND_TIME
+from Simulation.Utils.packet import ACK
 
 
 class Receiver():
@@ -14,13 +10,6 @@ class Receiver():
         # the sender will be expecting an ACK 0 for the first packet, if this is corrupted use 1 for the sequece # on the ACK to tell the sender something is wrong, after first packet, last ACK will be updated
         self.expectedSeqNum = 1
         self.windowSize = windowSize
-
-
-    def setState(self, state):
-        self.currentState = self.states[state]
-        statement = "{" + str(self.env.now) + "} | " + "Receiver now: " + str(self.currentState)
-        print(statement)
-        sse.publish({"message": statement}, type='publish')
 
 
     def handle(self, packet, source):

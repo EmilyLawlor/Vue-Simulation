@@ -20,9 +20,7 @@ class SimulationManager():
             yield self.env.process(self.sender.generate_packets(self.receiver))
 
 
-class Start():
-
-    def run(self, runTime, errorRate, lossRate, windowSize):
+def run(runTime, errorRate, lossRate, windowSize):
         sse.publish({"protocol": 'Go-Back-N'}, type='start')
 
         stats = Statistics()

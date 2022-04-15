@@ -26,9 +26,7 @@ class SimulationManager():
             yield self.env.timeout(3)   # new packet generated to send every 3 units time
 
 
-class Start():
-
-    def run(self, runTime, errorRate):
+def run(runTime, errorRate):
         sse.publish({"protocol": "rdt2.0"}, type='start')
         stats = Statistics()
         env = simpy.rt.RealtimeEnvironment()

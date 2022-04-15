@@ -1,8 +1,8 @@
 from flask_sse import sse
-from Simulation.Utils.packet import Packet
 from Simulation.rdt1_0.senderStates import Sending, Waiting
+from Simulation.Utils.constants import SEND_TIME
+from Simulation.Utils.packet import Packet
 
-SEND_TIME = 2   # time to send a packet to receiver
 
 class Sender():
     def __init__(self, env, channel, stats):

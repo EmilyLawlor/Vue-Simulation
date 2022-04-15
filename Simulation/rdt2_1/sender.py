@@ -1,9 +1,9 @@
 from flask_sse import sse
-from Simulation.Utils.IDpacket import IDACK, IDNAK, IDPacket, IDResendPacket
-from Simulation.rdt2_1.senderStates import (Waiting, SendingFirst, SendingSecond,
-                                            WaitingFirst, WaitingSecond)
-
-SEND_TIME = 1
+from Simulation.rdt2_1.senderStates import (SendingFirst, SendingSecond,
+                                            Waiting, WaitingFirst,
+                                            WaitingSecond)
+from Simulation.Utils.constants import SEND_TIME
+from Simulation.Utils.packetID import ACKID, NAKID, PacketID, ResendPacketID
 
 
 class Sender():
@@ -29,7 +29,7 @@ class Sender():
                 self.setState('sending0')
             else:
                 self.setState('sending1')
-            packet=IDPacket()
+            packet=PacketID()
             packet.setSeqnum(self.currentState.seqnum)
             sse.publish({"packetNumber": packet.id}, type='send')
             statement = "{" + str(self.env.now) + "} | " + "Sending packet num " + str(packet.seqnum)
@@ -47,7 +47,7 @@ class Sender():
     def handle(self, packet, source):
         # Decides what to do with ACKs and NAKs received
         # if the packet is an ACK and it is not corrupted
-        if type(packet) is IDACK and packet.state is True:
+        if type(packet) is ACKID and packet.state is True:
             self.stats.incrementPacketsSuccessfullySent()
             statement = "{" + str(self.env.now) + "} | " + "ACK received for packet num: " + str(packet.seqnum) + " by sender"
             print(statement)
@@ -64,7 +64,7 @@ class Sender():
             sse.publish({"message": statement}, type='publish')
             yield self.env.process(self.rdt_resend(source, packet))
         # packet was received incorrectly at receiver, send again
-        elif type(packet) is IDNAK:
+        elif type(packet) is NAKID:
             statement = "{" + str(self.env.now) + "} | " + "Bit errors in packet sent: " + str(packet.seqnum)
             print(statement)
             sse.publish({"message": statement}, type='publish')
@@ -72,7 +72,7 @@ class Sender():
 
 
     def rdt_resend(self, destination, packet):
-        packet = IDResendPacket(packet.seqnum, packet.id)
+        packet = ResendPacketID(packet.seqnum, packet.id)
         sse.publish({"packetNumber": packet.id}, type='resend')
         statement = "{" + str(self.env.now) + "} | " + "Resending packet num: " + str(packet.seqnum)
         print(statement)

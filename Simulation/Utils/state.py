@@ -8,10 +8,10 @@ class State(object):
         return self.name 
 
 
-class SequencesState(object):
+class SequencedState(State):
 
     def __init__(self, name, seqnum):
-        self.name = name
+        super().__init__(name)
         self.seqnum = seqnum
 
 

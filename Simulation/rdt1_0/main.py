@@ -22,22 +22,20 @@ class SimulationManager():
             print(statement)
             sse.publish({"message": statement}, type='publish')
             self.env.process(self.sender.rdt_send(self.receiver))
-            yield self.env.timeout(5)   # new packet generated to send every 3 units time
+            yield self.env.timeout(5)   # new packet generated to send every 5 units time
 
 
-class Start():
-
-    def run(self, runTime):
-        sse.publish({"protocol": "rdt1.0"}, type='start')
-        stats = Statistics()
-        env = simpy.rt.RealtimeEnvironment()
-        sim = SimulationManager(env, stats)
-        env.run(until=runTime)
-        statement = "END"
-        print(statement)
-        stats = stats.getStats()
-        stats['message'] = statement
-        sse.publish(stats, type='terminate')
+def run(runTime):
+    sse.publish({"protocol": "rdt1.0"}, type='start')
+    stats = Statistics()
+    env = simpy.rt.RealtimeEnvironment()
+    sim = SimulationManager(env, stats)
+    env.run(until=runTime)
+    statement = "END"
+    print(statement)
+    stats = stats.getStats()
+    stats['message'] = statement
+    sse.publish(stats, type='terminate')
 
 
 if __name__ == '__main__':

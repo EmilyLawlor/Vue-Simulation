@@ -1,12 +1,9 @@
-from Simulation.Utils.IDpacket import IDPacket, IDResendPacket
+from Simulation.Utils.packetID import PacketID, ResendPacketID
 from Simulation.rdt3_0.senderStates import Waiting, Sending
 from Simulation.Utils.timer import Timer
+from Simulation.Utils.constants import SEND_TIME, TIMEOUT_INTERVAL
 import random
 from flask_sse import sse
-
-
-SEND_TIME = 1
-TIMEOUT_INTERVAL = 6
 
 
 class Sender():
@@ -47,7 +44,7 @@ class Sender():
                 self.setState('sending-0')
             else:
                 self.setState('sending-1')
-            packet=IDPacket()
+            packet=PacketID()
             packet.setSeqnum(self.currentState.seqnum)
             sse.publish({"packetNumber": packet.id}, type='send')
             statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(packet.seqnum) + " started sending"
@@ -103,7 +100,7 @@ class Sender():
         # restart timer
         self.timer.start()
         yield self.env.timeout(SEND_TIME)
-        self.env.process(self.channel.send(destination, IDResendPacket(packet.seqnum, packet.id), self))
+        self.env.process(self.channel.send(destination, ResendPacketID(packet.seqnum, packet.id), self))
 
 
     def timeout(self, destination, packet):

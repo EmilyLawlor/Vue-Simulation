@@ -13,13 +13,13 @@
             />
         </div>
 
-        <div v-if="showExtraOptions" && false>
+        <div v-if="showExtraOptions && false">
             Sequence Numbers: {{ this.sequenceNumbersSlider }}
             <vue-slider
                 v-model="sequenceNumbersSlider"
                 :min=5
                 :max=20
-                :disabled=isDisabled
+                :disabled=true
             />
         </div>
 

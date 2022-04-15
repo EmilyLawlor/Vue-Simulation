@@ -1,31 +1,20 @@
 import random
-from Simulation.Utils.packet import Packet
-from Simulation.GBN.senderStates import Sending, Waiting
-from Simulation.Utils.timer import Timer
-from flask_sse import sse
 
-SEND_TIME = 1
-TIMEOUT_INTERVAL = 5
+from flask_sse import sse
+from Simulation.Utils.constants import SEND_TIME, TIMEOUT_INTERVAL
+from Simulation.Utils.packet import Packet
+from Simulation.Utils.timer import Timer
 
 
 class Sender():
     def __init__(self, env, channel, windowSize, stats):
         self.env = env
-        self.states = {'waiting':Waiting(), 'sending':Sending()}
-        self.currentState = self.states['waiting']
         self.channel = channel
         self.windowSize = windowSize
         self.timer = None
         self.nextSeqNum = 1
         self.base = 1
         self.stats = stats
-
-
-    def setState(self, state):
-        self.currentState = self.states[state]
-        statement = "{" + str(self.env.now) + "} | " + "Sender now: " + str(self.currentState)
-        print(statement)
-        sse.publish({"message": statement}, type='publish')
 
 
     # simulating packet creation for telephone wires, compare against other packet generation methods

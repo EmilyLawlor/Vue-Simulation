@@ -1,9 +1,7 @@
 from flask_sse import sse
-from Simulation.Utils.packet import ACK
 from Simulation.rdt1_0.receiverStates import Receiving, Waiting
-
-DELIVER_TIME = 2    # time to deliver packet to upper layers
-SEND_TIME = 2   # time to send packet back to sender - ACK or NAK
+from Simulation.Utils.constants import DELIVER_TIME, SEND_TIME
+from Simulation.Utils.packet import ACK
 
 
 class Receiver():
