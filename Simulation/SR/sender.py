@@ -101,6 +101,7 @@ class Sender():
             # if it was not smallest unACKed packet, find in unACKed list and remove
             elif packet.seqnum in self.unACKed:
                 self.unACKed.remove(packet.seqnum)
+            sse.publish({"base": self.base, 'seqnum': self.nextSeqNum}, type='ACKreceived')
 
 
 

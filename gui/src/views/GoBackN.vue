@@ -44,7 +44,10 @@ import StartButton from '@/components/StartButton.vue';
 import Statistics from '@/components/Statistics.vue';
 import Legend from '@/components/Legend.vue';
 import { setUpEventListeners } from '@/utils/eventListeners';
-import { generatePackets } from '@/utils/packetManager';
+import {
+  generatePackets, usable, unusable,
+  ack, resetCanvas,
+} from '@/utils/packetManager';
 
 export default {
   name: 'GoBackN',
@@ -85,6 +88,14 @@ export default {
     },
     updateWindowSize(value) {
       this.windowSize = value;
+      for (let i = 0; i < this.windowSize; i += 1) {
+        usable(this.sender[i]);
+        usable(this.receiver[i]);
+      }
+      for (let i = this.windowSize; i < 20; i += 1) {
+        unusable(this.sender[i]);
+        unusable(this.receiver[i]);
+      }
     },
     updateErrorRate(value) {
       this.errorRate = value;
@@ -93,13 +104,31 @@ export default {
       this.lossRate = value;
     },
     generatePackets() {
-      [this.sender, this.receiver] = generatePackets();
+      [this.sender, this.receiver] = generatePackets(this.windowSize);
+    },
+    slideWindow(nextSeqNum, base) {
+      for (let i = nextSeqNum; i < base; i += 1) {
+        if (i < this.sender.length) {
+          if (this.sender[i].state === 'unusable') {
+            usable(this.sender[i]);
+            usable(this.receiver[i]);
+          }
+        }
+      }
+    },
+    // when an ACK is received, ACK all unACked packets before it
+    ack(packet) {
+      for (let i = 0; i < packet; i += 1) {
+        ack(this.sender[i]);
+        ack(this.receiver[i]);
+      }
     },
   },
   mounted() {
+    resetCanvas();
     const eventSource = new EventSource('http://localhost:5000/stream');
     this.generatePackets();
-    setUpEventListeners(eventSource, true, this.sender, this.receiver);
+    setUpEventListeners(eventSource, false, this.sender, this.receiver);
 
     try {
       eventSource.addEventListener('publish', (event) => {
@@ -136,6 +165,16 @@ export default {
           this.updates = '';
           this.isRunning = true;
         }
+      }, false);
+    } catch (err) {
+      console.log(err);
+    }
+
+    try {
+      eventSource.addEventListener('ACKreceived', (event) => {
+        const data = JSON.parse(event.data);
+        this.slideWindow(data.seqnum, data.base + this.windowSize - 1);
+        this.ack(data.seqnum);
       }, false);
     } catch (err) {
       console.log(err);

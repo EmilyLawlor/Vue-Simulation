@@ -73,7 +73,7 @@ export default {
       this.errorRate = value;
     },
     generatePackets() {
-      [this.sender, this.receiver] = generatePackets();
+      [this.sender, this.receiver] = generatePackets(1);
     },
   },
   watch: {

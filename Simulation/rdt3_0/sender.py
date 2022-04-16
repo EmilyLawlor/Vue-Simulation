@@ -78,6 +78,7 @@ class Sender():
             yield self.env.process(self.rdt_resend(source, packet))
         else:
             statement = "{" + str(self.env.now) + "} | " + "ACK received for packet num: " + str(packet.seqnum) + " by sender"
+            sse.publish({'seqnum': packet.id}, type='ACKreceived')
             self.stats.incrementPacketsSuccessfullySent()
             print(statement)
             sse.publish({"message": statement}, type='publish')

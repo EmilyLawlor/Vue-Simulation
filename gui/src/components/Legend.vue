@@ -1,10 +1,11 @@
 <template>
   <div>
-      <p id='error'> 🔴 - Error </p>
-      <p id='acked'> 🟢 - ACKed </p>
-      <p id='sending'> 🔵 - Sending/waiting to send </p>
-      <p> ⚫ - Not yet sendable, outside of window </p>
-      <p id='lost'> When a packet disappears, it has been lost in the channel </p>
+      <p> 🟠 - Sent but not yet ACKed</p>
+      <p> 🟢 - Sent and ACKed </p>
+      <p> 🔴 - Error </p>
+      <p> 🔵 - Usable(within window) but not yet sent</p>
+      <p> ⚫ - Unusable, outside of window </p>
+      <p> When a packet disappears, it has been lost in the channel </p>
   </div>
 </template>
 
@@ -21,9 +22,5 @@ div {
     text-align: left;
     bottom: 0;
     right: 40%;
-}
-
-.error {
-    color: red;
 }
 </style>

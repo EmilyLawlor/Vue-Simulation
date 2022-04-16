@@ -88,6 +88,7 @@ class Sender():
             self.stats.incrementPacketsSuccessfullySent()
 
             self.base = packet.seqnum + 1
+            sse.publish({"base": self.base, 'seqnum': packet.seqnum}, type='ACKreceived')
             # if this ACKs the last unACKed packet in channel, stop timer and wait
             if self.base == self.nextSeqNum:
                 self.timer.stop()

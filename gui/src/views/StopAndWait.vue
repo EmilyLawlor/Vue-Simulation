@@ -8,7 +8,6 @@
 
       :runTime="this.runTime"
       :sequenceNumbers="this.sequenceNumbers"
-      :windowSize="this.windowSize"
       :errorRate="this.errorRate"
       :lossRate="this.lossRate"
     />
@@ -27,7 +26,6 @@
     <Options
       @update-run-time="updateRunTime"
       @update-sequence-numbers="updateSequenceNumbers"
-      @update-window-size="updateWindowSize"
       @update-error-rate="updateErrorRate"
       @update-loss-rate="updateLossRate"
 
@@ -44,7 +42,7 @@ import StartButton from '@/components/StartButton.vue';
 import Statistics from '@/components/Statistics.vue';
 import Legend from '@/components/Legend.vue';
 import { setUpEventListeners } from '@/utils/eventListeners';
-import { generatePackets } from '@/utils/packetManager';
+import { generatePackets, usable, resetCanvas } from '@/utils/packetManager';
 
 export default {
   name: 'StopAndWait',
@@ -61,7 +59,6 @@ export default {
 
       runTime: 1,
       sequenceNumbers: 20,
-      windowSize: 5,
       errorRate: 0,
       lossRate: 0,
 
@@ -83,9 +80,6 @@ export default {
     updateSequenceNumbers(value) {
       this.sequenceNumbers = value;
     },
-    updateWindowSize(value) {
-      this.windowSize = value;
-    },
     updateErrorRate(value) {
       this.errorRate = value;
     },
@@ -93,13 +87,20 @@ export default {
       this.lossRate = value;
     },
     generatePackets() {
-      [this.sender, this.receiver] = generatePackets();
+      [this.sender, this.receiver] = generatePackets(1);
+    },
+    slideWindow(packet) {
+      if (packet < this.sender.length) {
+        usable(this.sender[packet]);
+        usable(this.receiver[packet]);
+      }
     },
   },
   mounted() {
+    resetCanvas();
     const eventSource = new EventSource('http://localhost:5000/stream');
     this.generatePackets();
-    setUpEventListeners(eventSource, true, this.sender, this.receiver);
+    setUpEventListeners(eventSource, false, this.sender, this.receiver);
 
     try {
       eventSource.addEventListener('publish', (event) => {
@@ -136,6 +137,15 @@ export default {
           this.updates = '';
           this.isRunning = true;
         }
+      }, false);
+    } catch (err) {
+      console.log(err);
+    }
+
+    try {
+      eventSource.addEventListener('ACKreceived', (event) => {
+        const data = JSON.parse(event.data);
+        this.slideWindow(data.seqnum + 1);
       }, false);
     } catch (err) {
       console.log(err);
