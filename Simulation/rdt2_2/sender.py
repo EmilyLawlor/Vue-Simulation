@@ -1,13 +1,13 @@
 from flask_sse import sse
 from Simulation.Utils.packetID import PacketID, ResendPacketID
-from Simulation.rdt2_2.senderStates import Sending, Waiting
+from Simulation.Utils.senderStates import SequencedSending, SequencedWaiting
 from Simulation.Utils.constants import SEND_TIME
 
 
 class Sender():
     def __init__(self, env, channel, stats):
         self.env = env
-        self.states = {'waiting-0':Waiting(0), 'waiting-1':Waiting(1), 'sending-0':Sending(0), 'sending-1':Sending(1)}
+        self.states = {'waiting-0':SequencedWaiting(0), 'waiting-1':SequencedWaiting(1), 'sending-0':SequencedSending(0), 'sending-1':SequencedSending(1)}
         self.currentState = self.states['waiting-0']
         self.channel = channel
         self.stats = stats
@@ -22,7 +22,7 @@ class Sender():
 
 
     def rdt_send(self, destination):
-        if type(self.currentState) is Waiting:
+        if type(self.currentState) is SequencedWaiting:
             if self.currentState.seqnum == 0:
                 self.setState('sending-0')
             else:

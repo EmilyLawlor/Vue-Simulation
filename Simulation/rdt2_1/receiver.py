@@ -1,5 +1,5 @@
 from flask_sse import sse
-from Simulation.rdt2_1.receiverStates import WaitingFirst, WaitingSecond
+from Simulation.Utils.receiverStates import SequencedWaiting
 from Simulation.Utils.constants import DELIVER_TIME, SEND_TIME
 from Simulation.Utils.packetID import ACKID, NAKID
 
@@ -7,8 +7,8 @@ from Simulation.Utils.packetID import ACKID, NAKID
 class Receiver():
     def __init__(self, env, channel):
         self.env = env
-        self.states = {'waiting0': WaitingFirst(), 'waiting1': WaitingSecond()}
-        self.currentState = self.states['waiting0']
+        self.states = {'waiting-0':SequencedWaiting(0), 'waiting-1':SequencedWaiting(1)}
+        self.currentState = self.states['waiting-0']
         self.channel = channel
 
 
@@ -22,14 +22,14 @@ class Receiver():
 
     def handle(self, packet, source):
         seqnum = packet.seqnum
-        if type(self.currentState) == type(self.states['waiting0']):
+        if type(self.currentState) == type(self.states['waiting-0']):
             # packet received uncorrupted and in correct order
             if packet.state is True and seqnum == 0:
                 statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " received"
                 print(statement)
                 sse.publish({"message": statement}, type='publish')
                 self.env.process(self.deliver_data(seqnum))
-                self.setState('waiting1')
+                self.setState('waiting-1')
                 yield self.env.process(self.send_ACK(packet, source))
             # packet receive is corrupted
             elif packet.state is False:
@@ -37,14 +37,14 @@ class Receiver():
             # packet received uncorrupted but wrong sequence number
             elif packet.state is True and seqnum != 0:
                 self.env.process(self.send_ACK(packet, source))
-        elif type(self.currentState) == type(self.states['waiting1']):
+        elif type(self.currentState) == type(self.states['waiting-1']):
             # packet received uncorrupted and in correct order
             if packet.state is True and seqnum == 1:
                 statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " received"
                 print(statement)
                 sse.publish({"message": statement}, type='publish')
                 self.env.process(self.deliver_data(seqnum))
-                self.setState('waiting0')
+                self.setState('waiting-0')
                 yield self.env.process(self.send_ACK(packet, source))
             # packet receive is corrupted
             elif packet.state is False:

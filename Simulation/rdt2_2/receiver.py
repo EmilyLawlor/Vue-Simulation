@@ -1,13 +1,13 @@
 from flask_sse import sse
 from Simulation.Utils.packetID import ACKID
-from Simulation.rdt2_2.receiverStates import Waiting
+from Simulation.Utils.receiverStates import SequencedWaiting
 from Simulation.Utils.constants import SEND_TIME, DELIVER_TIME
 
 
 class Receiver():
     def __init__(self, env, channel):
         self.env = env
-        self.states = {'waiting-0':Waiting(0), 'waiting-1':Waiting(1)}
+        self.states = {'waiting-0':SequencedWaiting(0), 'waiting-1':SequencedWaiting(1)}
         self.currentState = self.states['waiting-0']
         self.channel = channel
         # the sender will be expecting an ACK 0 for the first packet, if this is corrupted use 1 for the sequece # on the ACK to tell the sender something is wrong, after first packet, last ACK will be updated

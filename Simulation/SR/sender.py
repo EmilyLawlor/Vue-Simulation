@@ -32,7 +32,7 @@ class Sender():
             random_interaval = int(round(random.expovariate(1.0/mean_send_time),0))
             statement = "{" + str(self.env.now) + "} | " + "New packet ready to send"
             print(statement)
-            #sse.publish({"message": statement}, type='publish')
+            sse.publish({"message": statement}, type='publish')
             yield self.env.timeout(random_interaval)
 
 
@@ -45,6 +45,7 @@ class Sender():
 
     def rdt_send(self, destination, packet):
         if self.nextSeqNum < self.base + self.windowSize:
+            packet=Packet(self.nextSeqNum)
             sse.publish({"packetNumber": packet.seqnum-1}, type='send')
             statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(packet.seqnum) + " started sending"
             print(statement)

@@ -1,5 +1,5 @@
 from flask_sse import sse
-from Simulation.rdt2_0.receiverStates import Receiving, Waiting
+from Simulation.Utils.receiverStates import Receiving, Waiting
 from Simulation.Utils.constants import DELIVER_TIME, SEND_TIME
 from Simulation.Utils.packet import ACK, NAK
 

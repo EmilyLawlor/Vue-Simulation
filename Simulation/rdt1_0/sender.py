@@ -1,5 +1,5 @@
 from flask_sse import sse
-from Simulation.rdt1_0.senderStates import Sending, Waiting
+from Simulation.Utils.senderStates import Sending, Waiting
 from Simulation.Utils.constants import SEND_TIME
 from Simulation.Utils.packet import Packet
 

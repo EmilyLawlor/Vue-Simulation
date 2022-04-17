@@ -1,9 +1,6 @@
 from flask_sse import sse
 from Simulation.Utils.packet import ACK
-from Simulation.Utils.constants import SEND_TIME
-
-
-DELIVER_TIME = 0 
+from Simulation.Utils.constants import SEND_TIME, DELIVER_TIME
 
 
 class Receiver():
@@ -19,8 +16,8 @@ class Receiver():
     def handle(self, packet, source):
         seqnum = packet.seqnum
         # if this packet has already been received, discard and send ACK, regardless of current state as data has already been received
-        if seqnum in range(self.base - self.windowSize, self.base):
-            statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " was already receiver, discarding duplicate"
+        if seqnum in range(self.base - self.windowSize, self.base) or seqnum in self.buffer:
+            statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " was already received, discarding duplicate"
             print(statement)
             sse.publish({"message": statement}, type='publish')
             yield self.env.process(self.send_ACK(seqnum, source))
@@ -51,6 +48,7 @@ class Receiver():
         yield self.env.timeout(DELIVER_TIME)
         # if packet is in order deliver the data, and deliver any packets in buffer while they are in order
         while seqnum == self.base:
+            sse.publish({"packetNumber": seqnum-1}, type='delivered')
             statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " data delivered"
             print(statement)
             sse.publish({"message": statement}, type='publish')
@@ -73,6 +71,9 @@ class Receiver():
 
 
     def buffer_data(self, packet):
+        sse.publish({"packetNumber": packet.seqnum-1}, type='buffered')
         self.buffer.append(packet.seqnum)
+        self.buffer.sort()
+        print(self.buffer)
         yield self.env.timeout(0)
 

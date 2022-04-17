@@ -1,7 +1,5 @@
 from flask_sse import sse
-from Simulation.rdt2_1.senderStates import (SendingFirst, SendingSecond,
-                                            Waiting, WaitingFirst,
-                                            WaitingSecond)
+from Simulation.Utils.senderStates import SequencedWaiting, SequencedSending
 from Simulation.Utils.constants import SEND_TIME
 from Simulation.Utils.packetID import ACKID, NAKID, PacketID, ResendPacketID
 
@@ -9,8 +7,8 @@ from Simulation.Utils.packetID import ACKID, NAKID, PacketID, ResendPacketID
 class Sender():
     def __init__(self, env, channel, stats):
         self.env = env
-        self.states = {'waiting0': WaitingFirst(), 'sending0':SendingFirst(), 'waiting1': WaitingSecond(), 'sending1':SendingSecond()}
-        self.currentState = self.states['waiting0']
+        self.states = {'waiting-0':SequencedWaiting(0), 'waiting-1':SequencedWaiting(1), 'sending-0':SequencedSending(0), 'sending-1':SequencedSending(1)}
+        self.currentState = self.states['waiting-0']
         self.channel = channel
         self.stats = stats
 
@@ -24,11 +22,11 @@ class Sender():
 
 
     def rdt_send(self, destination):
-        if issubclass(type(self.currentState), Waiting):
+        if issubclass(type(self.currentState), SequencedWaiting):
             if self.currentState.seqnum == 0:
-                self.setState('sending0')
+                self.setState('sending-0')
             else:
-                self.setState('sending1')
+                self.setState('sending-1')
             packet=PacketID()
             packet.setSeqnum(self.currentState.seqnum)
             sse.publish({"packetNumber": packet.id}, type='send')
@@ -52,11 +50,11 @@ class Sender():
             statement = "{" + str(self.env.now) + "} | " + "ACK received for packet num: " + str(packet.seqnum) + " by sender"
             print(statement)
             sse.publish({"message": statement}, type='publish')
-            if type(self.currentState) == type(self.states['sending0']):
-                self.setState('waiting1')
-            elif type(self.currentState) == type(self.states['sending1']):
+            if type(self.currentState) == type(self.states['sending-0']):
+                self.setState('waiting-1')
+            elif type(self.currentState) == type(self.states['sending-1']):
             # if the packet is an ACK and it is not corrupted
-                self.setState('waiting0')
+                self.setState('waiting-0')
         # if the packet received is corrupted
         elif packet.state is False:
             statement = "{" + str(self.env.now) + "} | " + "Response received was corrupted, resend packet: " + str(packet.seqnum)
