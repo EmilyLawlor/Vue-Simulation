@@ -24,7 +24,7 @@ class ErrorChannel(Channel):
 
 
     def send(self, destination, packet, source):
-        errors = randrange(9)
+        errors = randrange(10)
         if errors < self.errorRate:
             # bit error
             self.stats.incrementBitErrorsOccurred()
@@ -54,7 +54,7 @@ class ErrorAndLossChannel(Channel):
 
 
     def send(self, destination, packet, source):
-        errors = randrange(9)
+        errors = randrange(10)
         # Both data packets and ACKs can have bit errors and may get lost
         if errors < self.errorRate:
             # bit error
@@ -72,7 +72,7 @@ class ErrorAndLossChannel(Channel):
             else:
                 sse.publish({"packetNumber": packet.id, "source": 'receiver'}, type='error')
 
-        errors = randrange(9)
+        errors = randrange(10)
         if errors < self.lossRate:
             # lost packet
             self.stats.incrementPacketsLost()

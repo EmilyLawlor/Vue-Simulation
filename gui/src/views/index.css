@@ -1,7 +1,8 @@
 .updates {
-    position: absolute;
-    width: 300px;
-    height: 80%;
+    position: relative;
+    width: 20%;
+    max-width: 300px;
+    height: 650px;
     overflow-y: scroll;
     border: 1px solid black;
     border-radius: 10px;
@@ -20,8 +21,8 @@ li {
 
 #canvas {
   position: absolute;
-  top: 150px;
-  left: 380px;
-  width: 700px;
+  top: 20%;
+  left: 25%;
+  max-width: 700px;
   height: 400px;
 }

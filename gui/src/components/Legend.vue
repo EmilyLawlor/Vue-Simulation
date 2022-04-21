@@ -21,6 +21,6 @@ div {
     position: absolute;
     text-align: left;
     bottom: 0;
-    right: 40%;
+    right: 50%;
 }
 </style>
