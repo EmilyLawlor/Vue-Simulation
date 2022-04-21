@@ -38,11 +38,15 @@ export default {
       type: Number,
       default: 10,
     },
+    generation: {
+      type: String,
+      default: 'Normal',
+    },
   },
   computed: {
     params() {
       if (this.protocol === 'rdt1.0') {
-        return { runTime: this.runTime, protocol: this.protocol };
+        return { runTime: this.runTime, protocol: this.protocol, generation: this.generation };
       }
       if (this.protocol === 'Stop-and-Wait' || this.protocol === 'Go-Back-N' || this.protocol === 'Selective-Repeat') {
         return {
@@ -51,9 +55,15 @@ export default {
           windowSize: this.windowSize,
           errorRate: this.errorRate,
           lossRate: this.lossRate,
+          generation: this.generation,
         };
       }
-      return { runTime: this.runTime, errorRate: this.errorRate, protocol: this.protocol };
+      return {
+        runTime: this.runTime,
+        errorRate: this.errorRate,
+        protocol: this.protocol,
+        generation: this.generation,
+      };
     },
   },
   methods: {

@@ -8,6 +8,7 @@
 
         :runTime="this.runTime"
         :errorRate="this.errorRate"
+        :generation="this.generation"
       />
     <div class="updates">
       <p>{{ updates }}</p>
@@ -24,6 +25,7 @@
     <Options
       @update-run-time="updateRunTime"
       @update-error-rate="updateErrorRate"
+      @update-generation-method="updateGenerationMethod"
 
       :isDisabled="isRunning"
 
@@ -63,6 +65,8 @@ export default {
 
       sender: [],
       receiver: [],
+
+      generation: 'Normal',
     };
   },
   methods: {
@@ -71,6 +75,9 @@ export default {
     },
     updateErrorRate(value) {
       this.errorRate = value;
+    },
+    updateGenerationMethod(value) {
+      this.generation = value;
     },
     generatePackets() {
       [this.sender, this.receiver] = generatePackets(1);

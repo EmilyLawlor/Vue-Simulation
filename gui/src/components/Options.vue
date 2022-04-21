@@ -54,6 +54,16 @@
                 :disabled=isDisabled
             />
         </div>
+
+        <div>
+          Packet Generation Method: {{ generation }}
+          <select v-model="generation" class="form-select" size="4">
+            <option selected value="Normal">Normal Distribution</option>
+            <option value="Exponential">Exponential Distribution</option>
+            <option value="5">Every 5 Seconds</option>
+            <option value="3">Every 3 Seconds</option>
+          </select>
+        </div>
     </div>
 </template>
 
@@ -97,6 +107,7 @@ export default {
       windowSizeSlider: this.windowSize,
       errorRateSlider: this.errorRate,
       lossRateSlider: this.lossRate,
+      generation: 'Normal',
     };
   },
   computed: {
@@ -113,25 +124,23 @@ export default {
     },
   },
   watch: {
-    runTimeSlider(newVal, oldVal) {
-      // this check is mandatory to prevent endless cycle
-      if (newVal !== oldVal) this.$emit('update-run-time', newVal);
+    runTimeSlider(newRunTime, oldRunTime) {
+      if (newRunTime !== oldRunTime) this.$emit('update-run-time', newRunTime);
     },
-    sequenceNumbersSlider(newVal, oldVal) {
-      // this check is mandatory to prevent endless cycle
-      if (newVal !== oldVal) this.$emit('update-sequence-numbers', newVal);
+    sequenceNumbersSlider(newSequenceNum, oldSequenceNum) {
+      if (newSequenceNum !== oldSequenceNum) this.$emit('update-sequence-numbers', newSequenceNum);
     },
-    windowSizeSlider(newVal, oldVal) {
-      // this check is mandatory to prevent endless cycle
-      if (newVal !== oldVal) this.$emit('update-window-size', newVal);
+    windowSizeSlider(newWindowSize, oldWindowSize) {
+      if (newWindowSize !== oldWindowSize) this.$emit('update-window-size', newWindowSize);
     },
-    errorRateSlider(newVal, oldVal) {
-      // this check is mandatory to prevent endless cycle
-      if (newVal !== oldVal) this.$emit('update-error-rate', newVal);
+    errorRateSlider(newError, oldError) {
+      if (newError !== oldError) this.$emit('update-error-rate', newError);
     },
-    lossRateSlider(newVal, oldVal) {
-      // this check is mandatory to prevent endless cycle
-      if (newVal !== oldVal) this.$emit('update-loss-rate', newVal);
+    lossRateSlider(newLoss, oldLoss) {
+      if (newLoss !== oldLoss) this.$emit('update-loss-rate', newLoss);
+    },
+    generation(newMethod, oldMethod) {
+      if (newMethod !== oldMethod) this.$emit('update-generation-method', newMethod);
     },
   },
 };
@@ -140,8 +149,11 @@ export default {
 <style scoped>
 
 .options {
-    width: 150px;
+    width: 14%;
+    min-width: 130px;
+    max-width: 200px;
     position: absolute;
+    top: 15%;
     right: 0;
     padding: 10px;
     border: 1px solid black;

@@ -24,21 +24,21 @@ CORS(app)
 @app.route('/stop-and-wait', methods=['GET'])
 def stop_and_wait():
     runTimeSeconds = float(request.args['runTime']) * 60
-    run_StopAndWait(runTimeSeconds, int(request.args['errorRate']), int(request.args['lossRate']))
+    run_StopAndWait(runTimeSeconds, int(request.args['errorRate']), int(request.args['lossRate']), request.args['generation'])
     return jsonify( {'protocol':'stop and wait'})
 
 
 @app.route('/go-back-n', methods=['GET'])
 def go_back_n():
     runTimeSeconds = float(request.args['runTime']) * 60
-    run_GoBackN(runTimeSeconds, int(request.args['errorRate']), int(request.args['lossRate']), int(request.args['windowSize']))
+    run_GoBackN(runTimeSeconds, int(request.args['errorRate']), int(request.args['lossRate']), int(request.args['windowSize']), request.args['generation'])
     return jsonify( {'protocol':'go back n'} )
 
 
 @app.route('/selective-repeat', methods=['GET'])
 def selective_repeat():
     runTimeSeconds = float(request.args['runTime']) * 60
-    run_SelectiveRepeat(runTimeSeconds, int(request.args['errorRate']), int(request.args['lossRate']), int(request.args['windowSize']))
+    run_SelectiveRepeat(runTimeSeconds, int(request.args['errorRate']), int(request.args['lossRate']), int(request.args['windowSize']), request.args['generation'])
     return jsonify( {'protocol':'selective repeat'})
 
 
@@ -48,13 +48,13 @@ def others():
     runTimeSeconds = float(request.args['runTime']) * 60
 
     if protocol == 'rdt2.2':
-        run_rdt2_2(runTimeSeconds, int(request.args['errorRate']))
+        run_rdt2_2(runTimeSeconds, int(request.args['errorRate']), request.args['generation'])
     elif protocol == 'rdt2.1':
-        run_rdt2_1(runTimeSeconds, int(request.args['errorRate']))
+        run_rdt2_1(runTimeSeconds, int(request.args['errorRate']), request.args['generation'])
     elif protocol == 'rdt2.0':
-        run_rdt2_0(runTimeSeconds, int(request.args['errorRate']))
+        run_rdt2_0(runTimeSeconds, int(request.args['errorRate']), request.args['generation'])
     else:
-        run_rdt1_0(runTimeSeconds)
+        run_rdt1_0(runTimeSeconds, request.args['generation'])
     
     return jsonify( {'protocol': protocol})
 

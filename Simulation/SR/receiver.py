@@ -48,13 +48,15 @@ class Receiver():
         yield self.env.timeout(DELIVER_TIME)
         # if packet is in order deliver the data, and deliver any packets in buffer while they are in order
         while seqnum == self.base:
+            if seqnum in self.buffer:
+                self.buffer.remove(seqnum)
             sse.publish({"packetNumber": seqnum-1}, type='delivered')
             statement = "{" + str(self.env.now) + "} | " + "Packet num: " + str(seqnum) + " data delivered"
             print(statement)
             sse.publish({"message": statement}, type='publish')
             # check if there are any packets in buffer
             if len(self.buffer) != 0:
-                seqnum = self.buffer.pop(0)
+                seqnum = self.buffer[0]
             self.base += 1
         
 

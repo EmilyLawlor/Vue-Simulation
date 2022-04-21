@@ -10,6 +10,7 @@
       :sequenceNumbers="this.sequenceNumbers"
       :errorRate="this.errorRate"
       :lossRate="this.lossRate"
+      :generation="this.generation"
     />
     <div class="updates">
       <p>{{ updates }}</p>
@@ -28,6 +29,7 @@
       @update-sequence-numbers="updateSequenceNumbers"
       @update-error-rate="updateErrorRate"
       @update-loss-rate="updateLossRate"
+      @update-generation-method="updateGenerationMethod"
 
       :isDisabled="isRunning"
 
@@ -59,8 +61,8 @@ export default {
 
       runTime: 1,
       sequenceNumbers: 20,
-      errorRate: 0,
-      lossRate: 0,
+      errorRate: 10,
+      lossRate: 10,
 
       protocol: 'Stop-and-Wait',
 
@@ -71,6 +73,8 @@ export default {
 
       sender: [],
       receiver: [],
+
+      generation: 'Normal',
     };
   },
   methods: {
@@ -85,6 +89,9 @@ export default {
     },
     updateLossRate(value) {
       this.lossRate = value;
+    },
+    updateGenerationMethod(value) {
+      this.generation = value;
     },
     generatePackets() {
       [this.sender, this.receiver] = generatePackets(1);

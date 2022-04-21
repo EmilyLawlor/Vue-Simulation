@@ -7,13 +7,14 @@ from flask_sse import sse
 
 
 class Sender():
-    def __init__(self, env, channel, stats):
+    def __init__(self, env, channel, stats, generation):
         self.env = env
         self.states = {'waiting-0':SequencedWaiting(0), 'waiting-1':SequencedWaiting(1), 'sending-0':SequencedSending(0), 'sending-1':SequencedSending(1)}
         self.currentState = self.states['waiting-0']
         self.channel = channel
         self.timer = None
         self.stats = stats
+        self.generation = generation
 
 
     def setState(self, state):
@@ -31,7 +32,16 @@ class Sender():
             # average time between sending packets
             mean_generation_time = 3
             # randomly sample the time
-            random_interaval = abs(int(round(random.normalvariate(mean_generation_time,1))))
+
+            if self.generation == 'Normal':
+                random_interaval = abs(int(round(random.normalvariate(mean_generation_time,1))))
+            elif self.generation == 'Exponential':
+                random_interaval = abs(int(round(random.expovariate(1.0/mean_generation_time),0)))
+            elif self.generation == '5':
+                random_interaval = 5
+            else:
+                random_interaval = 3
+
             statement = "{" + str(self.env.now) + "} | " + "New packet ready to send"
             print(statement)
             sse.publish({"message": statement}, type='publish')

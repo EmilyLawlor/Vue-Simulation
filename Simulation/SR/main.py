@@ -8,11 +8,11 @@ from Simulation.Utils.statistics import Statistics
 
 
 class SimulationManager():
-    def __init__(self, env, errorRate, lossRate, windowSize, stats):
+    def __init__(self, env, errorRate, lossRate, windowSize, stats, generation):
         self.env = env
         self.channel = ErrorAndLossChannel(self.env, errorRate, lossRate, stats)
         self.receiver = Receiver(self.env, self.channel, windowSize)
-        self.sender = Sender(self.env, self.channel, windowSize, stats)
+        self.sender = Sender(self.env, self.channel, windowSize, stats, generation)
         self.action = self.env.process(self.start())
 
 
@@ -21,11 +21,11 @@ class SimulationManager():
             yield self.env.process(self.sender.generate_packets(self.receiver))
 
 
-def run(runTime, errorRate, lossRate, windowSize):
+def run(runTime, errorRate, lossRate, windowSize, generation):
         sse.publish({"protocol": "Selective-Repeat"}, type='start')
         stats = Statistics()
         env = simpy.rt.RealtimeEnvironment()
-        sim = SimulationManager(env, errorRate, lossRate, windowSize, stats)
+        sim = SimulationManager(env, errorRate, lossRate, windowSize, stats, generation)
         env.run(until=runTime)
         statement = "END"
         print(statement)

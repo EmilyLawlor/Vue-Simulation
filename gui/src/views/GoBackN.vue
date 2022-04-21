@@ -11,6 +11,7 @@
         :windowSize="this.windowSize"
         :errorRate="this.errorRate"
         :lossRate="this.lossRate"
+        :generation="this.generation"
       />
     <div class="updates">
       <p>{{ updates }}</p>
@@ -30,6 +31,7 @@
       @update-window-size="updateWindowSize"
       @update-error-rate="updateErrorRate"
       @update-loss-rate="updateLossRate"
+      @update-generation-method="updateGenerationMethod"
 
       :isDisabled="isRunning"
 
@@ -65,8 +67,8 @@ export default {
       runTime: 1,
       sequenceNumbers: 20,
       windowSize: 5,
-      errorRate: 0,
-      lossRate: 0,
+      errorRate: 10,
+      lossRate: 10,
 
       sent: 0,
       generated: 0,
@@ -77,6 +79,8 @@ export default {
 
       sender: [],
       receiver: [],
+
+      generation: 'Normal',
     };
   },
   methods: {
@@ -103,12 +107,16 @@ export default {
     updateLossRate(value) {
       this.lossRate = value;
     },
+    updateGenerationMethod(value) {
+      this.generation = value;
+    },
     generatePackets() {
       [this.sender, this.receiver] = generatePackets(this.windowSize);
     },
     slideWindow(nextSeqNum, base) {
       for (let i = nextSeqNum; i < base; i += 1) {
         if (i < this.sender.length) {
+          console.log(this.sender[i].state)
           if (this.sender[i].state === 'unusable') {
             usable(this.sender[i]);
             usable(this.receiver[i]);

@@ -7,7 +7,7 @@ from Simulation.Utils.timer import Timer
 
 
 class Sender():
-    def __init__(self, env, channel, windowSize, stats):
+    def __init__(self, env, channel, windowSize, stats, generation):
         self.env = env
         self.channel = channel
         self.windowSize = windowSize
@@ -16,6 +16,7 @@ class Sender():
         self.base = 1
         self.unACKed = []
         self.stats = stats
+        self.generation = generation
 
 
     def generate_packets(self, destination):
@@ -27,9 +28,17 @@ class Sender():
             self.env.process(self.rdt_send(destination, packet))
 
             # average time between sending packets
-            mean_send_time = 3
-            # randomly sample the time
-            random_interaval = int(round(random.expovariate(1.0/mean_send_time),0))
+            mean_generation_time = 3
+
+            if self.generation == 'Normal':
+                random_interaval = abs(int(round(random.normalvariate(mean_generation_time,1))))
+            elif self.generation == 'Exponential':
+                random_interaval = abs(int(round(random.expovariate(1.0/mean_generation_time),0)))
+            elif self.generation == '5':
+                random_interaval = 5
+            else:
+                random_interaval = 3
+
             statement = "{" + str(self.env.now) + "} | " + "New packet ready to send"
             print(statement)
             sse.publish({"message": statement}, type='publish')

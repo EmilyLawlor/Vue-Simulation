@@ -7,7 +7,7 @@ from Simulation.Utils.timer import Timer
 
 
 class Sender():
-    def __init__(self, env, channel, windowSize, stats):
+    def __init__(self, env, channel, windowSize, stats, generation):
         self.env = env
         self.channel = channel
         self.windowSize = windowSize
@@ -15,6 +15,8 @@ class Sender():
         self.nextSeqNum = 1
         self.base = 1
         self.stats = stats
+        self.generation = generation
+        self.lastACK = 0
 
 
     # simulating packet creation for telephone wires, compare against other packet generation methods
@@ -26,9 +28,17 @@ class Sender():
             self.env.process(self.rdt_send(destination, packet))
 
             # average time between sending packets
-            mean_send_time = 3
-            # randomly sample the time
-            random_interaval = int(round(random.expovariate(1.0/mean_send_time),0))
+            mean_generation_time = 3
+
+            if self.generation == 'Normal':
+                random_interaval = abs(int(round(random.normalvariate(mean_generation_time,1))))
+            elif self.generation == 'Exponential':
+                random_interaval = abs(int(round(random.expovariate(1.0/mean_generation_time),0)))
+            elif self.generation == '5':
+                random_interaval = 5
+            else:
+                random_interaval = 3
+
             statement = "{" + str(self.env.now) + "} | " + "New packet ready to send"
             print(statement)
             #sse.publish({"message": statement}, type='publish')
@@ -85,7 +95,12 @@ class Sender():
             print(statement)
             sse.publish({"message": statement}, type='publish')
 
-            self.stats.incrementPacketsSuccessfullySent()
+            if packet.seqnum != self.lastACK:
+                # if this packet has just been ACKed and this is not a duplicate ACK sent due to out-of-order or corrupt packets, then mark as new packet successfully received
+                # loop for cumulative ACKs
+                for i in range (self.lastACK, packet.seqnum):
+                    self.stats.incrementPacketsSuccessfullySent()
+            self.lastACK = packet.seqnum
 
             self.base = packet.seqnum + 1
             sse.publish({"base": self.base, 'seqnum': packet.seqnum}, type='ACKreceived')
