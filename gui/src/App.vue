@@ -44,7 +44,7 @@
 #nav {
   padding: 30px;
   background-color: lightgray;
-  margin-bottom: 5;
+  margin-bottom: 5px;
 }
 
 #nav a {

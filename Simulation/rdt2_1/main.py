@@ -34,7 +34,7 @@ class SimulationManager():
             if self.generation == 'Normal':
                 random_interaval = abs(int(round(random.normalvariate(mean_generation_time,1))))
             elif self.generation == 'Exponential':
-                random_interaval = abs(int(round(random.expovariate(1.0/mean_generation_time),0)))
+                random_interaval = int(round(random.expovariate(1.0/mean_generation_time),0))
             elif self.generation == '5':
                 random_interaval = 5
             else:

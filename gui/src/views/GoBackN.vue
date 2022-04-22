@@ -18,6 +18,10 @@
     </div>
     <canvas id="canvas"/>
     <Legend/>
+    <div class="info">
+      <p> Base: {{ base }} </p>
+      <p> Next Expected Sequence Number: {{ nextSeqNum }} </p>
+    </div>
     <Statistics
       class="stats"
       :generated="this.generated"
@@ -81,6 +85,9 @@ export default {
       receiver: [],
 
       generation: 'Normal',
+
+      base: 0,
+      nextSeqNum: 0,
     };
   },
   methods: {
@@ -116,7 +123,6 @@ export default {
     slideWindow(nextSeqNum, base) {
       for (let i = nextSeqNum; i < base; i += 1) {
         if (i < this.sender.length) {
-          console.log(this.sender[i].state)
           if (this.sender[i].state === 'unusable') {
             usable(this.sender[i]);
             usable(this.receiver[i]);
@@ -183,6 +189,8 @@ export default {
         const data = JSON.parse(event.data);
         this.slideWindow(data.seqnum, data.base + this.windowSize - 1);
         this.ack(data.seqnum);
+        this.base = data.base;
+        this.nextSeqNum = data.seqnum;
       }, false);
     } catch (err) {
       console.log(err);
@@ -193,4 +201,10 @@ export default {
 
 <style scoped>
 @import "index.css";
+.info {
+    position: absolute;
+    text-align: left;
+    bottom: 0;
+    right: 30%;
+}
 </style>
