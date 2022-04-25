@@ -6,7 +6,7 @@ vue: v2.6.14 <br />
 
 ## To Run
 
-The the following commannds from Vue-Simulation directory:
+Run the following commannds from Vue-Simulation directory:
   * `redis-server`
   * `Activate vitural environment: source env/bin/activate #on mac, or windows equivalent`
   * `python app.py`
