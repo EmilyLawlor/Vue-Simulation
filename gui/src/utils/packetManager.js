@@ -1,4 +1,4 @@
-import Packet from '@/classes/packets';
+import PacketVisualistion from '@/classes/packets';
 
 /* eslint-disable import/prefer-default-export */
 export function generatePackets(windowSize) {
@@ -6,9 +6,9 @@ export function generatePackets(windowSize) {
   const sender = [];
   for (let x = 4; x < 300; x += 15) {
     if (count < windowSize) {
-      sender.push(new Packet(x, 10, 'usable'));
+      sender.push(new PacketVisualistion(x, 10, 'usable'));
     } else {
-      sender.push(new Packet(x, 10, 'unusable'));
+      sender.push(new PacketVisualistion(x, 10, 'unusable'));
     }
     count += 1;
   }
@@ -17,9 +17,9 @@ export function generatePackets(windowSize) {
   const receiver = [];
   for (let x = 4; x < 300; x += 15) {
     if (count < windowSize) {
-      receiver.push(new Packet(x, 130, 'usable'));
+      receiver.push(new PacketVisualistion(x, 130, 'usable'));
     } else {
-      receiver.push(new Packet(x, 130, 'unusable'));
+      receiver.push(new PacketVisualistion(x, 130, 'unusable'));
     }
     count += 1;
   }
@@ -29,7 +29,7 @@ export function generatePackets(windowSize) {
 export function sendPacket(packetNumber) {
   // calculate x coordiate of packet
   const x = (packetNumber) * 15 + 4;
-  const packet = new Packet(x, 10, 'sent');
+  const packet = new PacketVisualistion(x, 10, 'sent');
   requestAnimationFrame(() => {
     packet.moveDown(130);
   });
@@ -39,7 +39,7 @@ export function sendPacket(packetNumber) {
 export function sendACK(packetNumber) {
   // calculate x coordiate of packet
   const x = (packetNumber) * 15 + 4;
-  const packet = new Packet(x, 130, 'ACKed');
+  const packet = new PacketVisualistion(x, 130, 'ACKed');
   packet.setState('ACKed');
   requestAnimationFrame(() => {
     packet.moveUp(10);
@@ -50,7 +50,7 @@ export function sendACK(packetNumber) {
 export function sendNAK(packetNumber) {
   // calculate x coordiate of packet
   const x = (packetNumber) * 15 + 4;
-  const packet = new Packet(x, 130, 'error');
+  const packet = new PacketVisualistion(x, 130, 'error');
   packet.setState('error');
   requestAnimationFrame(() => {
     packet.moveUp(10);
@@ -61,7 +61,7 @@ export function sendNAK(packetNumber) {
 export function resend(packetNumber) {
   // calculate x coordiate of packet
   const x = (packetNumber) * 15 + 4;
-  const packet = new Packet(x, 10, 'sent');
+  const packet = new PacketVisualistion(x, 10, 'sent');
   requestAnimationFrame(() => {
     packet.moveDown(130);
   });

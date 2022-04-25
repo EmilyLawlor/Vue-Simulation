@@ -1,4 +1,4 @@
-export default class Packet {
+export default class PacketVisualistion {
   constructor(x, y, state) {
     this.y = y;
     this.x = x;
@@ -7,7 +7,6 @@ export default class Packet {
     this.canvas = document.getElementById('canvas');
     this.ctx = this.canvas.getContext('2d');
     this.state = state;
-    if (this.state === 'usable') { this.ctx.fillStyle = 'blue'; }
     this.render();
   }
 
